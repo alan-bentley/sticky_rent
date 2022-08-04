@@ -1,0 +1,1141 @@
+---
+title: "Sticky rents and the affordability of rentals for housing in New Zealand"
+author: "Alan Bentley"
+date: "`r format(Sys.time(), '%B %Y')`"
+output:
+  pdf_document:
+    number_sections: yes
+  html_document:
+    number_sections: yes
+  word_document: default
+---
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = F, message=F, warning=F, cache=F,fig.align='center')
+
+#Options for word
+# knitr::opts_chunk$set(echo = F, message=F, warning=F, cache=F)
+
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(tidyr)
+library(stringr)
+library(zoo)
+library(data.table)
+library(knitr)
+library(kableExtra)
+library(lubridate)
+library(rgdal)
+library(broom)
+library(spdplyr)
+library(gridExtra)
+library(grid)
+library(readxl)
+
+#Some colours
+
+palc <- c("#ae4e51","grey70","grey20","grey50")
+
+# Custom ggplot (chart) themes
+theme_ab = function(base_size=16) {
+  theme_minimal() +
+    theme(text = element_text(size = base_size, color="grey30"),
+          plot.title = element_text(size=16),
+          plot.subtitle = element_text(size=12),
+          plot.caption = element_text(size=10),
+          plot.tag = element_text(size=10),
+          legend.text = element_text(size=12),
+          axis.text.y = element_text(size=10),
+          axis.text.x = element_text(size=10),
+          axis.title = element_text(size=12),
+          strip.text = element_text (color="grey30", size=10, margin = margin(0,.5,0,.5, "cm")),
+          panel.spacing = unit(1, "lines"))
+}
+
+root_census <- "../data"
+
+root_hes <- "../data"
+
+root_rent <- "../data"
+
+
+# # Read Census data
+# 
+# ## Household income
+# 
+# ## 2018 (and 2013 and 2006), from Infoshare
+# 
+# census_2018_inc_ta <- read.csv(paste0(root_census,"/CensusHHincomeTA_061318.csv")) %>%
+#   mutate(Area_description=str_trim(Area)) %>%
+#   select(-c(HH2013,HH2018,Area)) %>% 
+#   gather(year,med_inc,-Area_description) %>% 
+#   filter(!grepl("Local Board Area",Area_description)) %>% 
+#   mutate(year=gsub("Inc","",year),
+#          med_inc=as.numeric(med_inc),
+#          date=as.Date(paste0(year,"-03-31")),
+#          area=Area_description,
+#          area=gsub("Total - New Zealand by Territorial Authority/SA2","New Zealand",area),
+#          source="Census, median household income") %>% 
+#   select(-c(Area_description,year))
+# 
+# census_2018_inc_reg <- read.csv(paste0(root_census,"/CensusHHincomeRegion_061318.csv")) %>%
+#   mutate(Area_description=str_trim(Area)) %>%
+#   select(-c(HH2013,HH2018,Area)) %>% 
+#   gather(year,med_inc,-Area_description) %>% 
+#   mutate(year=gsub("Inc","",year),
+#          med_inc=as.numeric(med_inc),
+#          date=as.Date(paste0(year,"-03-31")),
+#          area=Area_description,
+#          source="Census, median household income") %>% 
+#   select(-c(Area_description,year))
+# 
+# census_2018_inc <- rbind(census_2018_inc_reg,census_2018_inc_ta)
+# 
+# #2013 (and 2006 and 2001), from Meshblock files
+# 
+# census_2013_inc <- read.csv(paste0(root_census,"/2013-mb-dataset-Total-New-Zealand-Household.csv")) %>% 
+#   filter(as.numeric(Code) < 100 | Code == "Total New Zealand",
+#          !grepl("Footnotes",Area_Code_and_Description)) %>% 
+#   select(contains("income") & contains("median")| contains("Area_Code_and_Description")) %>% 
+#   setNames(c("X2001","X2006","X2013","area")) %>% 
+#   gather(year,med_inc,-area) %>% 
+#   mutate(year=gsub("X","",year),
+#          area=gsub('[[:digit:]]+', '', area),
+#          area=str_trim(area),
+#          area=gsub("Wanganui District","Whanganui District",area),
+#          area=gsub("Total New Zealand","New Zealand",area),
+#          date=as.Date(paste0(year,"-03-31")),
+#          source="Census, median household income",
+#          med_inc=as.numeric(med_inc)) %>% 
+#   select(-year)
+# 
+# # 2006 (and 2001 and 1996), from Meshblock files
+# 
+# files <- list.files(path = paste0(root_census, "/2006mbdatasetallnz"))
+# 
+# hh_files <- subset(files, grepl("ho.xls", files))
+# 
+# census_2006_inc <- c()
+# 
+# for (i in 1:length(hh_files)) {
+# 
+# #TA  
+#   
+# census_2006_inc_i <- read_excel(paste0(root_census,"/2006mbdatasetallnz/",hh_files[i]), sheet="TA") 
+# 
+# names(census_2006_inc_i)[2] <- "area"
+# 
+# census_2006_inc_i <- census_2006_inc_i %>%
+#   select(area | contains("income")) 
+# 
+# names(census_2006_inc_i) <- paste0(colnames(census_2006_inc_i), census_2006_inc_i[1, ])
+# 
+# census_2006_inc_i <- census_2006_inc_i[-1, ] %>% 
+#   select(contains("median")| contains("area")) %>% 
+#   setNames(c("X1996","X2001","X2006","area")) %>% 
+#   gather(year,med_inc,-area) %>% 
+#   mutate(year=gsub("X","",year)) %>% 
+#   filter(med_inc!="..C")
+# 
+# census_2006_inc <- rbind(census_2006_inc, census_2006_inc_i)
+# 
+# #Reg council
+# 
+# census_2006_inc_i <- read_excel(paste0(root_census,"/2006mbdatasetallnz/",hh_files[i]), sheet="RC") 
+# 
+# names(census_2006_inc_i)[2] <- "area"
+# 
+# census_2006_inc_i <- census_2006_inc_i %>%
+#   select(area | contains("income")) 
+# 
+# names(census_2006_inc_i) <- paste0(colnames(census_2006_inc_i), census_2006_inc_i[1, ])
+# 
+# census_2006_inc_i <- census_2006_inc_i[-1, ] %>% 
+#   select(contains("median")| contains("area")) %>% 
+#   setNames(c("X1996","X2001","X2006","area")) %>% 
+#   gather(year,med_inc,-area) %>% 
+#   mutate(year=gsub("X","",year)) %>% 
+#   filter(med_inc!="..C")
+# 
+# census_2006_inc <- rbind(census_2006_inc, census_2006_inc_i)
+# 
+# }
+# 
+# census_2006_inc <- census_2006_inc %>% 
+#       mutate(date=as.Date(paste0(year,"-03-31")),
+#          source="Census, median household income",
+#          med_inc=as.numeric(med_inc),
+#          area=gsub("Wanganui District","Whanganui District",area)) %>% 
+#   select(area,med_inc,date,source)
+# 
+# #Add 1996 household income from Rosemary Goodyear (Stats NZ)
+# census_1996_inc <- data.frame(area="New Zealand",
+#                                 med_inc=34700,
+#                                 date=as.Date("1996-03-31"),
+#                                 source="Census, median household income")
+# 
+# census <- rbind(census_2006_inc,census_2013_inc,census_2018_inc,census_1996_inc) %>% 
+#   group_by(area,date,source) %>% 
+#   summarise(med_inc=mean(med_inc)) %>% #average over duplicate census values 
+#   ungroup() %>% 
+#   group_by(area, source) %>% #Remove incomplete series (Auckland old TAs)
+#   mutate(max_date=max(date),
+#          min_date=min(date)) %>%
+#   ungroup() %>% 
+#   filter(max_date==max(date),
+#          min_date==min(date)) %>% 
+#   select(-c(max_date,min_date))
+# 
+# write.csv(census,"census_hh_income.csv")
+# 
+# ## Rent amount
+# 
+# ## 2018 (and 2013 and 2006)
+# 
+# #TA and regional council
+# 
+# census_2018_rent_reg <- read.csv(paste0(root_census,"/weekly_rent_long_updated_16-7-20.csv")) %>% 
+#   filter(Weekly_rent_code=="Median",
+#          as.numeric(Area_code) < 100,
+#          !grepl("DHB",Area_code_and_description)) %>% 
+#   mutate(area=gsub('[[:digit:]]+', '', Area_code_and_description),
+#          area=str_trim(area),
+#         date=as.Date(paste0(Year,"-03-31")),
+#          source="Census, median rent",
+#          med_rent=as.numeric(Count)) %>% 
+#   select(area, med_rent, date, source)
+# 
+# #NZ
+# 
+# # download.file("https://www.stats.govt.nz/assets/Uploads/2018-Census-place-summaries/Download-data/2018-Census-place-summaries-CSV.zip",
+# #               destfile = "2018-census-place-summaries-csv.zip")
+# 
+# rent_median2006 <- read.csv(unz("2018-census-place-summaries-csv.zip","2018-census-place-summaries-housing-table2-2006-median-csv.csv"))
+# rent_median2013 <- read.csv(unz("2018-census-place-summaries-csv.zip","2018-census-place-summaries-housing-table2-2013-median-csv.csv"))
+# rent_median2018 <- read.csv(unz("2018-census-place-summaries-csv.zip","2018-census-place-summaries-housing-table2-2018-median-csv.csv"))
+# 
+# census_2018_rent_nz <- rbind(rent_median2006,rent_median2013,rent_median2018) %>% 
+#   filter(Area_description == "Total",
+#          Area_type == "Regional Council") %>% 
+#   mutate(date=as.Date(paste0(Year,"-03-31")),
+#          med_rent=as.numeric(Median_weekly_rent_paid_by_household_.),
+#          area="New Zealand",
+#          source="Census, median rent") %>% 
+#   select(area, med_rent, date, source)
+# 
+# #combine regions and NZ
+# census_2018_rent <- rbind(census_2018_rent_reg,census_2018_rent_nz)
+# 
+# #2013 (and 2006 and 2001)
+# 
+# census_2013_rent <- read.csv(paste0(root_census,"/2013-mb-dataset-Total-New-Zealand-Household.csv")) %>% 
+#   filter(as.numeric(Code) < 100 | Code == "Total New Zealand",
+#          !grepl("Footnotes",Area_Code_and_Description)) %>% 
+#   select(contains("rent") & contains("median")| contains("Area_Code_and_Description")) %>% 
+#   setNames(c("X2001","X2006","X2013","area")) %>% 
+#   gather(year,med_rent,-area) %>% 
+#   mutate(year=gsub("X","",year),
+#          area=gsub('[[:digit:]]+', '', area),
+#          area=str_trim(area),
+#          date=as.Date(paste0(year,"-03-31")),
+#          area=gsub("Wanganui District","Whanganui District",area),
+#          area=gsub("Total New Zealand","New Zealand",area),
+#          source="Census, median rent",
+#          med_rent=as.numeric(med_rent)) %>% 
+#   select(-year)
+# 
+# # 2006 (and 2001 and 1996)
+# 
+# files <- list.files(path = paste0(root_census, "/2006mbdatasetallnz"))
+# 
+# hh_files <- subset(files, grepl("ho.xls", files))
+# 
+# census_2006_rent <- c()
+# 
+# for (i in 1:length(hh_files)) {
+# 
+# #TA  
+#   
+# census_2006_rent_i <- read_excel(paste0(root_census,"/2006mbdatasetallnz/",hh_files[i]), sheet="TA") 
+# 
+# names(census_2006_rent_i)[2] <- "area"
+# 
+# census_2006_rent_i <- census_2006_rent_i %>%
+#   select(area | contains("rent")) 
+# 
+# names(census_2006_rent_i) <- paste0(colnames(census_2006_rent_i), census_2006_rent_i[1, ])
+# 
+# census_2006_rent_i <- census_2006_rent_i[-1, ] %>% 
+#   select(contains("median")| contains("area")) %>% 
+#   setNames(c("X1996","X2001","X2006","area")) %>% 
+#   gather(year,med_rent,-area) %>% 
+#   mutate(year=gsub("X","",year)) %>% 
+#   filter(med_rent!="..C")
+# 
+# census_2006_rent <- rbind(census_2006_rent, census_2006_rent_i)
+# 
+# #Reg council
+# 
+# census_2006_rent_i <- read_excel(paste0(root_census,"/2006mbdatasetallnz/",hh_files[i]), sheet="RC") 
+# 
+# names(census_2006_rent_i)[2] <- "area"
+# 
+# census_2006_rent_i <- census_2006_rent_i %>%
+#   select(area | contains("rent")) 
+# 
+# names(census_2006_rent_i) <- paste0(colnames(census_2006_rent_i), census_2006_rent_i[1, ])
+# 
+# census_2006_rent_i <- census_2006_rent_i[-1, ] %>% 
+#   select(contains("median")| contains("area")) %>% 
+#   setNames(c("X1996","X2001","X2006","area")) %>% 
+#   gather(year,med_rent,-area) %>% 
+#   mutate(year=gsub("X","",year)) %>% 
+#   filter(med_rent!="..C")
+# 
+# census_2006_rent <- rbind(census_2006_rent, census_2006_rent_i)
+# 
+# }
+# 
+# #manually add 1996 median rent
+# 
+# #estimated as 2001 median ($160) divided by CPI inflation of 1.077 between 2001Q1 and 1996Q1
+# # since inflation adjusted rent appears flat in Fig 2 of http://archive.stats.govt.nz/~/media/Statistics/browse-categories/people-and-communities/housing/rental-affordability-1998-2012/rental-affordability-1998-2012.pdf
+# 
+# census_1996_rent_nz <- data.frame(area="New Zealand",
+#                                 med_rent=150,
+#                                 date=as.Date("1996-03-31"),
+#                                 source="Census, median rent")
+# 
+# census_2006_rent <- census_2006_rent %>% 
+#       mutate(date=as.Date(paste0(year,"-03-31")),
+#          source="Census, median rent",
+#          med_rent=as.numeric(med_rent),
+#          area=ifelse(area=="Wanganui District","Whanganui District", area)
+#          ) %>% 
+#   select(area,med_rent,date,source) %>% 
+#   rbind(census_1996_rent_nz)
+# 
+# 
+# 
+
+# census_rent_combo <- rbind(census_2006_rent,census_2013_rent,census_2018_rent) %>% 
+#   group_by(area,date,source) %>% 
+#   summarise(med_rent=mean(med_rent)) %>% #average over duplicate census values 
+#   ungroup() %>% 
+#   group_by(area, source) %>% #Remove incomplete series (Auckland old TAs)
+#   mutate(max_date=max(date),
+#          min_date=min(date)) %>%
+#   ungroup() %>% 
+#   filter(max_date==max(date),
+#          min_date==min(date)) %>% 
+#   select(-c(max_date,min_date))
+
+census_rent_combo <- read.csv("../data/census_rent_combo.csv") %>% 
+  mutate(date=as.Date(date))
+
+
+# Tenancy Bond data
+
+bond_rent <- read.csv(paste0(root_rent,"/bond_stats.csv")) %>%
+  filter(
+    # sector=="All sectors",
+    type=="median_rent") %>%
+  # filter(sector=="Private sector", type=="median_rent") %>%
+  rename(area=Area,
+         med_rent=value,
+         source=concept) %>%
+  mutate(date=as.Date(date),
+         area=recode(area,"Central Hawkes Bay District" = "Central Hawke's Bay District",
+                     "Hutt City" = "Lower Hutt City",
+                     "MacKenzie District" = "Mackenzie District",
+                     "Queenstown Lakes District" = "Queenstown-Lakes District",
+                     "Thames Coromandel District" = "Thames-Coromandel District",
+                     "Matamata Piako District" = "Matamata-Piako District"),
+         area=ifelse(area %in% c("Auckland","Bay of Plenty","Canterbury","Gisborne","Hawke's Bay",
+"Manawatu-Wanganui","Marlborough","Nelson","Northland","Otago","Southland","Taranaki",
+"Tasman","Waikato","Wellington","West Coast"),paste0(area, " Region"),area)) %>%
+  select(date,source,area,med_rent, sector) %>%
+  filter(date <= as.Date("2020-12-31"))
+
+#combined
+
+census <- read.csv("../data/census_hh_income.csv") %>% 
+  mutate(date=as.Date(date))
+
+census_hh_inc <- census %>%
+  filter(source=="Census, median household income") %>%
+  select(-source)
+
+bond_rent1 <- bond_rent %>%
+  filter(source %in% c("Start date, Flow"), sector=="All sectors") %>%
+  select(-sector)
+
+combo_rent1 <- rbind(census_rent_combo,bond_rent1) %>%
+  left_join(census_hh_inc, by=c("area","date")) %>%
+  mutate(ann_rent=med_rent*(365/7),
+    ratio=ann_rent/med_inc,
+         res=med_inc-ann_rent) %>%
+  filter((grepl("Region",area)|area=="New Zealand") &
+           area !="Area Outside Region")
+
+bond_rent2 <- bond_rent %>%
+  filter(source == "Start date, Flow", sector=="All sectors",
+         date %in% unique(census_rent_combo$date)) %>% #just census years
+  select(-sector)
+
+combo_rent <- rbind(census_rent_combo,bond_rent2) %>%
+  right_join(census_hh_inc, by=c("area","date")) %>%
+  mutate(ann_rent=med_rent*(365/7),
+    ratio=ann_rent/med_inc,
+         res=med_inc-ann_rent) %>%
+  filter(!(area %in% c("Chatham Islands Territory","Area Outside Region")))
+
+rent_risk <- combo_rent %>%
+  mutate(year=as.factor(year(date))) %>%
+  group_by(area,year) %>%
+  mutate(ratio_risk=ratio-lag(ratio),
+         res_risk=res-lag(res)) %>%
+  ungroup() %>%
+  filter(date==max(date)) %>%
+  mutate(area = factor(area, levels=unique(area[order(res_risk)]), ordered=TRUE))
+
+# regions and NZ
+
+combo_rent2 <- combo_rent%>%
+  filter((grepl("Region",area)|area=="New Zealand") &
+           area !="Area Outside Region")
+
+
+```
+
+<style type="text/css">
+
+
+body{ /* Normal  */
+      font-size: 16px;
+      color: #4d5b61;
+  }
+td {  /* Table  */
+  font-size: 16px;
+}
+h1.title {
+  font-size: 40px;
+  color: #4d5b61;
+  border-bottom: 5px solid #d2ac2f;
+  padding-top: 5px;
+  padding-bottom: 30px;
+  font-weight: bold
+}
+h1 { /* Header 1 */
+  font-size: 36px;
+  color: #4d5b61;
+}
+h2 { /* Header 2 */
+    font-size: 22px;
+  color: #4d5b61;
+}
+h3 { /* Header 3 */
+  font-size: 20px;
+  color: #4d5b61;
+}
+code.r{ /* Code block */
+    font-size: 12px;
+}
+pre { /* Code block - determines code spacing between lines */
+    font-size: 20px;
+}
+</style>
+
+***
+
+# Abstract {-}
+
+People’s capacity to pay housing costs while sustaining other living costs is a significant issue of public concern. This paper takes a closer look at the
+affordability of rentals for housing in Aotearoa New Zealand, a country where an increasing
+proportion of the population pay rent to access housing. Renters typically face greater
+housing costs burden than homeowners (a higher proportion of their outgoings is devoted to
+housing costs) and have lower material wealth. This puts many renters at risk of financial hardship. We review available aggregate statistics and use these to explore the extent and impact of 'sticky rents'. That is, where currently existing rents lag behind rents for newly let properties. Where there is a significant difference between existing rents compared with rents for new tenancies, renters may be confronted with limited choice and be constrained in their residential mobility. We quantify these impacts with a new statistic of *rental affordability rigidity risk*.
+  
+JEL Codes: E30, R31
+
+Keywords: Housing affordability; Stock and flow rental prices; price rigidity.
+
+
+\newpage
+
+# Introduction
+
+Housing is a fundamental human need, recognized by the 1948 Universal Declaration of Human Rights (NZ Human Rights Commission, 2017). Beyond the basic need for shelter, it provides a foundation for social and economic wellbeing (Coates et al., 2015). People’s capacity to pay for their housing costs and the impacts of housing costs on people’s ability to meet their other needs has attracted considerable public concern. House prices and access to owner occupation has been one element of public debate, but so too has been the affordability of rents for those dependent on the rental market. 
+
+This paper is a preliminary attempt to understand rents and rental affordability in a more nuanced manner. In particular, it explores the concept of sticky rents and how New Zealand’s population of tenants may be experiencing different patterns of affordability and housing stress. It looks at changing home ownership rates and the increasing proportion of the population exposed to the rental market. The main focus, however, is on the way in which different data sources and affordability measures help us to understand tenants within dynamic rental markets. 
+
+The paper overviews the New Zealand rental stock, rent data, and ways rental affordability is measured. It considers the conceptual differences between *actual* or existing rental amounts paid by households compared with the *potential* rents they would face if they sought a new tenancy. Where there is difference between actual rents and the potential rents, actual rents can be referred to as *‘sticky rents'*. We consider how using different data sets which record rents using different data capturing methodologies illuminates the phenomenon of sticky rents on affordability. We suggest that looking at the difference between sticky rents and potential rents give us new insights into the way different regional populations are exposed to rental affordability problems. 
+
+## Why worry about renters and rents
+
+New Zealand’s housing crisis and the increased dependency of low income and more vulnerable households on rented housing raises issues around rental affordability. Renters of all ages typically have lower incomes than owner-occupiers (Figure 1A)[^F11], spend a greater share of their income on housing (Figure 1B)[^F12], and have lower material wealth (Figure 1C)[^F13]. In New Zealand, the proportion of people and households who pay rent has been increasing since the early 1990s as homeownership rates have fallen (Figure 1D[^F14] shows the proportion of dwellings owned by their occupants).  
+
+[^F11]: Household Economic Surveys 2007-2018, customised data request supplied by Stats NZ. LOESS (locally estimated scatterplot smoothing) trend line calculated using R stats package (R Core Team, 2020): span parameter set to 0.75.
+[^F12]: Household Economic Surveys 1998-2019, (Stats NZ, 2020a, p.46)
+[^F13]: Household Economic Survey 2017-18, downloaded from https://www.stats.govt.nz/assets/Uploads/Household-net-worth-statistics/Household-net-worth-statistics-Year-ended-June-2018/Download-data/household-net-worth-statistics-year-ended-june-2018-csv.zip [accessed February 2021]
+[^F14]: Censuses of Population and Dwellings, 1916-2018, (Stats NZ, 2020a, p.28)
+
+## Figure 1 {-}
+
+```{r, fig.width = 10, fig.height = 8}
+
+# Chart of background stats
+
+#1.1 Income for renters
+
+# hh_inc <- read.csv(paste0(root_hes,"/HESHouseholdIncome.csv"))
+
+hh_inc <- read.csv("https://catalogue.data.govt.nz/dataset/b94e07c7-b877-4a49-8eb7-6171e13f81aa/resource/048bf4ac-45db-4bba-b015-9b9226bc690d/download/hes-householdincome.csv")
+
+hh_inc2 <- hh_inc %>% 
+  gather(inc_type,value,-c(Year,RegCouncil,HouseholdTenure)) %>% 
+  mutate(date=as.Date(paste0(Year,"-01-01")),
+         tenure=ifelse(HouseholdTenure =="Total","All households","Renters")) %>% 
+  filter(RegCouncil == "Total", 
+         inc_type %in% c("MedianDispIncome","MedianTotalRegular"),
+         date <= "2018-06-30") %>% 
+  mutate(inc_type=recode(inc_type, "MedianDispIncome"="Disposable income",
+                         "MedianTotalRegular"="Gross (pre-tax) income"))
+
+p1a <- ggplot(hh_inc2, aes(date,value, colour=tenure))+
+  geom_smooth(se=F)+
+  theme_ab()+
+  scale_colour_manual(values=c("grey20",palc[1]), name="")+
+  scale_x_date(breaks=c(as.Date("2007-01-01"),as.Date("2012-01-01"),as.Date("2018-01-01")),
+                     labels=c(2007,2012,2018))+
+  facet_wrap(~inc_type)+
+  scale_y_continuous(labels=dollar)+
+  labs(tag= "Panel A",
+    title="Median household income",
+       subtitle="By tenure",
+       caption="LOESS trend",
+       y="", x="")+
+  theme(legend.position = "top")
+
+# p1a
+
+# write.csv(hh_inc2,"Fig1a.csv", row.names = F)
+
+#1.2 Housing cost ratios
+
+download.file("https://www.stats.govt.nz/assets/Uploads/household-income-and-housing-cost-statistics-year-ended-june-2019-csv.zip",
+              destfile = "housing_costs.zip")
+
+HcostsPropInc_NEW <- read.csv(unz("housing_costs.zip","inc-t5-datafile-csv.csv")) %>% 
+  filter( DwCode %in% c("D001B","D002B"
+                        # , "D003B"
+                        ) & !(PerCode %in% c("P005","P001", "P002"))) %>% 
+  mutate(DwCode=recode(DwCode, D001B = "Homeowners", D002B = "Renters", D003B = "All households"),
+         DwCode=factor(DwCode,levels=c("Renters","All households","Homeowners")),
+         PerCode=recode(PerCode, P001 = "Less than 25 percent",
+                        P002 = "25 percent or more",
+                        P003 = "30 percent or more",
+                        P004 = "40 percent or more")) %>% 
+  select(-RSE,-Flag)
+
+#Load older timeseries (supplied by Walter Moes, Stats NZ)
+HcostsPropInc_OLD <- read.csv(paste0(root_hes,"/region_by_tenure_1988to2004.csv")) %>% 
+  filter(region_desc == "Total New Zealand") %>% 
+  mutate(DwCode = recode(tenure, "Owned"="Homeowners",
+                         "Rent"="Renters")) %>% 
+  rename(Year=period) %>% 
+  select(Year, DwCode, 
+         # percent_25ormore, 
+         percent_30ormore, percent_40ormore) %>% 
+  gather(PerCode, Estimate, -c(Year, DwCode)) %>% 
+  mutate(PerCode = recode(PerCode, percent_25ormore="25 percent or more",
+                          percent_30ormore="30 percent or more",
+                          percent_40ormore="40 percent or more"))
+
+HcostsPropInc <- rbind(HcostsPropInc_NEW, HcostsPropInc_OLD)
+
+p1b <- ggplot(HcostsPropInc, aes(Year,Estimate/100, colour=DwCode))+
+              geom_smooth(se=F)+
+              theme_ab()+
+               facet_wrap(~PerCode)+
+              scale_y_continuous(labels=percent_format(accuracy=1))+
+              scale_colour_manual(values=palc, name="")+
+  scale_x_continuous(expand = expand_scale(mult = c(0, .1)))+
+              labs(tag= "Panel B",
+                   title = "Housing costs burdens",
+                   subtitle = "Households with housing cost ratio",
+                   y = "", x="",
+                   caption = "LOESS trend \n'Renters' includes those who don't own and live 'rent free'")+
+              theme(legend.position = "top")
+# p1b
+
+# write.csv(HcostsPropInc,"Fig1b.csv", row.names = F)
+
+# 1.3 Wealth for renters
+
+download.file("https://www.stats.govt.nz/assets/Uploads/Household-net-worth-statistics/Household-net-worth-statistics-Year-ended-June-2018/Download-data/household-net-worth-statistics-year-ended-june-2018-csv.zip",
+              destfile = "net_worth_2018.zip")
+
+# Create household type proportions
+
+wealth_by_homeown <- read.csv(unz("net_worth_2018.zip","Table501.csv")) %>%
+  filter(class %in% c("HT1","HT2","HT3","HT4","HT5")
+         & type==1 & measure %in% c(1)) %>% #type 1 is 'actual estimate'; measure 1 is 'median'
+  mutate(hhtype=ifelse(class=="HT1","Dwelling owned or partly owned by usual resident(s)",
+                       ifelse(class=="HT2","who make mortgage payments ",
+                              ifelse(class == "HT3","who do not make mortgage payments",
+                                     ifelse(class == "HT4","Dwelling not owned by usual resident(s)",
+                                            "Dwelling held in a family trust by usual resident(s)")))))
+
+wealth_by_homeown2 <- wealth_by_homeown %>%
+  filter(year == 2018 & class %in% c("HT2","HT3","HT4")) %>%
+  mutate(hhtype2=ifelse(class=="HT2","Own, \nwith mortgage",
+                        ifelse(class=="HT3","Own","Not owned")),
+         hhtype2=factor(hhtype2, levels=c("Not owned","Own, \nwith mortgage","Own")))
+
+p1c <- ggplot(data=wealth_by_homeown2, aes(hhtype2,estimate))+
+  geom_bar(stat="identity", fill="grey50")+
+  geom_bar(data=filter(wealth_by_homeown2, class=="HT4"), stat="identity", fill=palc[1])+
+  geom_text(data=filter(wealth_by_homeown2, class=="HT4"),
+            aes(label=paste0("  $", round(estimate,1),",000"), hjust="left"),colour=palc[1], size=5)+
+  geom_text(data=filter(wealth_by_homeown2, class!="HT4"),
+            aes(label=paste0("  $", round(estimate,1),",000 "), hjust="right"),colour="white", size=5)+
+  coord_flip()+
+  labs(tag= "Panel C",
+       title="Median household net worth",
+       subtitle="Year to June 2018, by tenure",
+       caption="\nOwner-occupied dwellings held in family trust not shown",
+       y="", x="")+
+  theme_ab()+
+  theme(axis.text.x = element_blank())
+# p1c
+
+# write.csv(wealth_by_homeown2,"Fig1c.csv", row.names = F)
+
+# 1.4 Home ownership
+
+own <- read.csv(paste0(root_census,"/census.csv")) %>%
+        mutate(date=as.Date(paste0(year,"-03-01")),
+               own_rate=own_rate/100)
+
+
+own13 <- filter(own, date==max(date))
+
+p1d <- ggplot(own, aes(date,own_rate))+
+  geom_segment(x=as.Date("1954-03-01"), xend=as.Date("2018-03-01"), y=own13$own_rate, yend=own13$own_rate, size=.05, colour="grey80", alpha=.2)+
+  geom_line()+
+  theme_ab() + 
+  scale_y_continuous(labels=percent_format(accuracy = 1), breaks=c(min(own$own_rate),
+                                                                   own13$own_rate,
+                                                                   max(own$own_rate)))+
+  scale_x_date(date_labels="%Y",
+               limits = c(as.Date(min(own$date)),as.Date(max(own$date))),
+               breaks = c(as.Date(min(own$date)),as.Date("1936-03-01"),as.Date("1954-03-01"),as.Date("1991-03-01"),as.Date(max(own$date))))+
+  labs(tag= "Panel D",
+    title="Home ownership rate",
+       x="",y="",
+       caption="Proportion of dwellings owned by their occupants")
+# p1d
+
+# write.csv(own,"Fig1d.csv", row.names = F)
+
+# 1.5 Combined plot
+
+grid.arrange(p1a, p1b, p1c, p1d, ncol=2,
+             bottom = textGrob("Source: Household Economic Surveys 1988-2019 (panels A-C), & Censuses of Population and Dwellings, 1916-2018 (panel D)",gp=gpar(fontsize=10)))
+
+
+```
+
+The decline has been acute for young adults. Bentley (2019), using data from the Household Economic Survey, found the proportion of New Zealanders aged 25 to 34 who are owner-occupiers declined from about 65 percent in 1988 to 35 percent in 2018. Jackson and James (2016), using Censuses of Population and Dwellings 1986-2013, reported a similar picture of diminishing levels of home ownership with sharper declines for younger age cohorts. The number of households in rented dwellings[^F21] increased from about 390,000 in 1996 to 530,000 in 2018 (Figure 2). 
+
+[^F21]: Censuses of Population and Dwellings 1996-2018, downloaded from http://nzdotstat.stats.govt.nz/ [accessed February 2021]
+
+## Figure 2 {-}
+
+```{r, fig.height=3}
+# Timeseries of number of rental properties, by sector of landlord
+
+# 2.1  Census data, from infoshare
+
+Census_Renters_Count18_aa <- read.csv(paste0(root_census,"/census_renters_by_landlord_06_13_18.csv")) %>% 
+  mutate(landlord=str_trim(Sector.of.landlord),
+         landlord=recode(landlord,'Total households - sector of landlord'="Total",
+                         'Iwi, hapu, or Maori land trust'="Not elsewhere included",
+                         'Other community housing provider'="Not elsewhere included")) %>% 
+  filter(landlord!="Total households stated") %>% 
+  group_by(year,landlord) %>% 
+  summarise(count=sum(count)) %>% 
+  mutate(landlord=recode(landlord,'Not elsewhere included'="Not Elsewhere Included"))
+
+Census_Renters_Count18_a <- Census_Renters_Count18_aa %>% 
+  filter(landlord %in% c("Total","Not Elsewhere Included"))
+
+Census_Renters_Count18 <- Census_Renters_Count18_aa %>% 
+  filter(!(landlord %in% c("Total","Not Elsewhere Included"))) %>% 
+  mutate(landlord=ifelse(landlord %in% c("Private person, trust, or business"),"Private","State")) %>%
+  group_by(year,landlord) %>% 
+  summarise(count=sum(count)) %>% 
+  ungroup() %>% 
+  rbind(Census_Renters_Count18_a)
+
+Census_Renters_Count01_a <- read.csv(paste0(root_census,"/census_renters_by_landlord_96_01.csv")) %>% 
+  filter(landlord %in% c("Total","Not Elsewhere Included"))
+
+Census_Renters_Count01 <- read.csv(paste0(root_census,"/census_renters_by_landlord_96_01.csv")) %>% 
+  filter(!(landlord %in% c("Total","Not Elsewhere Included"))) %>% 
+  mutate(landlord=ifelse(landlord %in% c("Private Person","Private Trust","Business or Other Organisation"),"Private","State")) %>% 
+  group_by(year,landlord) %>% 
+  summarise(count=sum(count)) %>% 
+  ungroup() %>% 
+  rbind(Census_Renters_Count01_a)
+
+Census_Renters_Count <- rbind(Census_Renters_Count18,Census_Renters_Count01) %>% 
+  mutate(date=as.Date(paste0(year,"-03-31")),
+         landlord=factor(landlord, levels=c("Private","State","Total",
+                                            "Not Elsewhere Included")))
+
+# 2.2 Plot the data
+
+
+Census_Renters_Count <- read.csv("../data/Fig2.csv") %>% 
+  mutate(date=as.Date(date))
+
+p2 <- ggplot(Census_Renters_Count, aes(date,count, colour=landlord))+
+  geom_line()+
+  geom_point(size=2)+
+  theme_ab()+
+  scale_colour_manual(values=palc, name="Sector of landlord")+
+  scale_y_continuous(labels=comma)+
+  labs(title="Number of rental households",
+       subtitle="By sector of landlord",
+       x="",y="",
+       caption="Source: Censuses of population and dwellings 1996-2018")+
+  scale_x_date(breaks=c(as.Date("1996-01-01"),as.Date("2001-01-01"),as.Date("2006-01-01"),as.Date("2013-01-01"),as.Date("2018-01-01")),
+                     labels=c(1996,2001,2006,2013,2018))
+
+p2
+
+```
+
+The proportion of households renting dwellings in the private sector has increased from 77 percent of renting households in 1996 to 83 percent in 2018. There was a decrease in the number of state houses during the 1990s. Tenants may seek a home on the rental market, but rental housing is primarily income stream generators and investment vehicles for landlords and property investors. According to Rehm and Yang Yang (2020), the private rental market is characterized by speculation. The increased share of the rental market owned by property investors, the periodic decline of the state housing stock, and the decline of state housing stock provision compared with population, all reflect a wider paradigm shift in housing policy (Figenshow and Saville-Smith, 2021).
+
+In this context, sticky rents matter because contractual rental amounts, paid by some sitting tenants, represent a risk of financial hardship if their circumstances change. Events may include: a landlord terminating the tenancy; a forced change in living arrangements; or a sudden income shock, say caused by job loss. Lack of mobility choice may also have macroeconomic consequences, since a lack of economic agency over choice of location may constrain the efficient allocation of labour across regions (Andrews et al., 2011, p.26).
+
+# Rental stock, rents data, and current rent affordability reporting in New Zealand
+
+The New Zealand rental stock is dynamic. Over time properties are built and demolished. Some properties switch between owner-occupation and ownership by property investors and back again. Even within the rental stock, some dwellings are temporarily unavailable for a variety of reasons including refurbishment. Over 1 million unique rental properties can be identified in the 27 years between 1993 and 2020, compared with a maximum active property count of about 400,000 at any one time. 
+
+The financial implications for tenants dependent on this rental stock have been given some attention in New Zealand over the last decade. This is in part because, as Stone (2006) argues, low-income renter households have little discretion over their level of housing expenditure since *“housing costs generally make the first claim on disposable income”*; or as Matt Desmond put it *“the rent eats first”* (Desmond, 2016, as cited in Herbert et. al., 2018). It is also because analysis of house price increases in New Zealand have focused on the concentration of property purchasing among property investors and the implications for heated house prices on rents and rental affordability. 
+
+Although the definition of *housing affordability* is contested (UK Affordable Housing Commission, 2019), almost universally it includes some idea of balancing income, the ability to pay housing expenses, and the adequacy of residual incomes in relation to non-housing costs (Gabriel et al., 2005; Stone, 2006). In practice, however, housing affordability statistics typically compare housing costs with household income. Metrics around residual incomes may be included but the issue of absolute adequacy is largely set aside. More refined ratio measures that deal with housing costs to incomes can be elaborate. For instance, some measures compare housing costs and income distributions using statistics of central tendency (such as, median housing costs to median household income), and those which report the proportion of households with a ratio above a given threshold. Those spending above the chosen threshold may be described as having a housing cost ‘overburden’ (Barker, 2019).
+
+The most commonly applied threshold is 30%, which is said to date back to ninetieth century studies of household budgets, and the resulting expression “one week’s pay for one month’s rent” (Hulchanski, 1995). Over time the commonly used “rule-of-thumb” threshold has crept up from 25% to 30%. In the United States, 25% of income was used as the ratio standard until the early 1980s, 30% has been used since then (Stone, 2006). In New Zealand, Stats NZ use a 30% threshold as their key housing affordability metric (Stats NZ, 2020b), but also publish series for 25% and 40% thresholds (see Fig. 1B). Since the new millennium, over 40% of renters spend more than 30% of their disposable (post tax) household income on rent. The New Zealand Department of Prime Minister and Cabinet, also use a 30% standard but additionally report statistics showing the proportion of children living in households spending more than 50% of their income on housing costs – 11% of children in 2019 (DPMC, 2020).
+
+Inevitably the measures and analysis of rental affordability depends on the availability of relevant data. There are three major sources of rental costs in New Zealand: (i) Tenancy Bonds administrative data; (ii) Census of Population and Dwellings; (iii) Household Economic Survey. Even the most cursory analysis of weekly rents show that these datasets give somewhat different pictures. Figure 3 shows a comparison of weekly rental amounts from these data sources.[^F31] The median and mean rental amounts from surveys are lower than the rents reported in the corresponding period for Tenancy Bonds data.
+
+[^F31]: Censuses of population and dwellings, 1996-2018. Data for 2006-2018 downloaded from https://www.stats.govt.nz/assets/Uploads/2018-Census-place-summaries/Download-data/2018-Census-place-summaries-CSV.zip [accessed February 2021]. Data for 2001 downloaded from http://archive.stats.govt.nz/Census/2013-census/data-tables/meshblock-dataset.aspx#gsc.tab=0 [accessed November 2020]. Data for 1996 estimated from Stats NZ (2013) and the Consumers Price Index. Household Economic Surveys 2003-04. Data for 2007-2019 downloaded from https://www.stats.govt.nz/assets/Uploads/household-income-and-housing-cost-statistics-year-ended-june-2019-csv.zip [accessed February 2021]. Data for 2003/04 from http://infoshare.stats.govt.nz/browse_for_stats/people_and_communities/Households/HouseholdEconomicSurvey_HOTPYeJun04/Commentary.aspx#gsc.tab=0 [accessed November 2020]. Tenancy Bond statistics created on a quarterly frequency from microdata. 
+
+
+## Figure 3 {-}
+
+```{r}
+
+# Comparison of weekly rental amounts from different data sources (HES, Census, Tenancy Bonds)
+
+# 3.1 Household Economic Survey (HES)
+
+#Housing costs (for those with that expenditure)
+download.file("https://www.stats.govt.nz/assets/Uploads/household-income-and-housing-cost-statistics-year-ended-june-2019-csv.zip",
+              destfile = "housing_costs.zip")
+
+#HES 2003/04 from http://infoshare.stats.govt.nz/browse_for_stats/people_and_communities/Households/HouseholdEconomicSurvey_HOTPYeJun04/Commentary.aspx#gsc.tab=0
+HES2003_04 <- data.frame(Year=2004,
+                           Estimate=185)
+
+housing_costs_with <- read.csv(unz("housing_costs.zip","inc-t7a-datafile-csv.csv")) %>%
+  filter(MsCode=="M001", # M001: average weekly expenditure
+         ExpCode=="E003") %>%
+  select(Year,Estimate) %>% 
+  rbind(HES2003_04) %>% 
+  mutate(value=Estimate,
+    date=as.Date(paste0(Year,"-01-01")),
+         sector="All sectors",
+         concept="Stock - HES",
+        source="Household Economic Survey",
+    type="Arithmetic \nmean") %>% 
+  filter(sector=="All sectors")
+
+
+# 3.2 Census
+
+census_rent_combo <- read.csv("../data/census_rent_combo.csv") %>% 
+  mutate(date=as.Date(date))
+
+census_rent_combo2 <- census_rent_combo %>% 
+  filter(area== "New Zealand") %>% 
+  mutate(source = "Census",
+         type = "Median",
+         sector = "All sectors") %>% 
+  rename(value=med_rent) %>% 
+  filter(sector=="All sectors")
+
+# 3.3 Tenancy Bond data
+
+bond_rent_compare <- read.csv(paste0(root_rent,"/bond_stats.csv")) %>% 
+  mutate(date=as.Date(date),
+         source="Tenancy Bond data",
+         type=recode(type,"median_rent"="Median",
+                     "geomean_rent"="Geometric \nmean",
+                     "mean_rent"="Arithmetic \nmean")) %>% 
+  filter(concept=="Start date, Flow",
+         Area=="New Zealand",
+         date <= as.Date("2020-12-31")) %>% 
+  filter(sector=="All sectors",
+         type!="Geometric \nmean")
+
+# 3.4 Plot the data
+
+p3 <- ggplot(bond_rent_compare, aes(date,value))+
+  geom_line(aes(colour=source))+
+  geom_point(data=census_rent_combo2, aes(shape=source), size=2)+
+  geom_line(data=census_rent_combo2, size=.2, linetype="dashed")+
+  geom_point(data=housing_costs_with, aes(shape=source), size=2)+
+  geom_line(data=housing_costs_with, size=.2, linetype="dashed")+
+  theme_ab()+
+  facet_grid(.~type)+
+  scale_colour_manual(values=palc, name="")+
+  scale_y_continuous(labels=dollar)+
+  scale_shape_discrete(name="")+
+  theme(legend.position="bottom",
+        strip.text.y = element_text(angle = 0))+
+  labs(title="Weekly rental amounts",
+       subtitle="Comparison of available data",
+       x="", y="",
+       caption="Source: Tenancy Bonds, Census, Household Economic Survey")+
+  guides(shape = guide_legend(nrow = 2))
+
+p3
+
+write.csv(bond_rent_compare,"Fig3.csv", row.names = F)
+
+```
+
+Understanding rents from these sources becomes complicated by the way in which their statistics are reported. Published summary statistics are reported for arithmetic mean weekly rental amounts from the Household Economic Survey compared with median weekly rent from the Census. Statistics from the Tenancy Bonds data are available continuously (plotted quarterly).  
+
+# Thinking more clearly about rent and rent affordability
+
+There are conceptual issues that need to be resolved if we are to think more clearly about rents and rent affordability. Perhaps one of the most important is the issue of whether affordability analysis should focus on *actual* rental amounts currently paid by households, or the *potential* rental costs tenants would face if they were seeking a tenancy on the market. The latter are often referred to as market rents. Comparing market rents measured as the rents of recently let properties with actual rents provides an insight into tenants’ mobility opportunities. Such a comparison also illuminates whether tenants have financial risks if precarious tenancies come to an end and they must find a new tenancy. 
+
+Understanding actual rents and market rents respectively are largely a matter of approach to rent-related data. As Bentley and Krsinich (2017) have noted in the past, there are two distinct approaches to recording the timing of rental price changes: *when new tenancies commence* (market rent); and *currently paid rent* for all rental properties (actual or existing rents). Lewis and Restieaux (2015) called these *‘flow’* and *‘stock’* measures of rents, for the new and ongoing tenancies, respectively.[^7]  
+ 
+[^7]: They make an analogy between measuring the heat of the rental market and the temperature of bath water (which they credit to Simon Hayter): "A useful analogy is comparing the stock of rental properties to a bath of water,
+and the flow of rental properties to the temperature of the water coming into the bath. If the hot tap
+is on, it will still take time for the temperature of the water in the bath to warm up, and vice versa."
+
+Ozimek (2014) describes how stock measures lag *flow* measures as tenancy agreements are contracts which buffer sitting tenants from changes in the price of newly let properties, until they expire and are renegotiated. This phenomenon, which has been labelled a “tenancy discount” or “residency discount”, can occur in both regulated and unregulated rental markets (Hoffman and Kurz, 2002). Within long-term tenancies rental amounts may reflect a discount for reducing landlords’ search and replacement costs (Miceli and Sirmans, 1999), and the emotional stress of renegotiation for landlord and tenant (Genesove, 2003). These factors create nominal price rigidity, or *sticky rents*. Since rental amounts are often set months or even years in the past, a sizeable divergence can exist between the two measurement concepts. In New Zealand, the Residential Tenancies Act 1989 limited within tenancy rent increases to every 6 months; since the 2020 amendment rents can only be increased once per year (Tenancy Services, 2020).
+
+The housing affordability literature is light on the conceptual choice between *actual* rent (for the *stock* of all tenancies) or *potential* rent (based on the contemporary market price, revealed by the *flow* of new tenancies). In practice the choice is usually based on the availability of data. However, we can turn to the literature on consumer price statistics which has some research on this choice, albeit in the context of rental equivalence (“imputed rent”) where actual rental for housing prices are used to estimate comparable utility for owner-occupiers. Use of *stock* measures is common international practice in Consumer Price Indices, and is recommended international best practice for estimating owners’ equivalent rent for countries that use a rental equivalence approach to measuring owner-occupied housing costs. The ILO et al (2020, p. 405) for instance argues *“A stock-based rental index is generally more stable and, as such, is more representative of the owner-occupied sector which, by definition, enjoys security of tenure.”*
+
+Other have argued somewhat differently. For instance, Johnson (2015) notes that arguments could be made for using the marginal (flow) of rent depending on ‘the question that rental equivalence seeks to answer’. Shimizu et al. (2012) make the case more strongly stating that, conceptually, imputed rent should reflect the amount a house owner could get in the rental market today; ie a *flow* measure would be most appropriate. Bentley and Krsinich (2017) note that *flow* measures show housing market turning points sooner. Ozimek (2014) demonstrate how *flow* measures better align with residential property price indexes. In reflection of the value of both concepts, Stats NZ publish rental price indexes using both stock and flow concepts (Stats NZ, 2019a). This reflects the value recognised in both measures following consultation with key users.
+
+Rental price stickiness varies across countries. This may reflect differences in regulations and the use, or absence, of rent controls (Deng et al., 2002). Shimizu et al. (2010) and Ozimek (2014) reported estimates of the probably of no rent change over a 1-year period for several countries: 29% – 54% for the United States (depending on the study used); 78% for Germany; 89% for Japan (corresponding to an average price duration of more than 9 years). Shimizu et al. (2010) find rent prices so sticky in Japan that they suggest the existence of an “implicit long-term contract between a landlord and an existing tenant” which leads them to conclude that the probably of a rent adjustment depends little on the divergence of a tenant’s actual rent from the contemporary market value. In New Zealand, Bentley (2018) reported the persistence of prices in a panel survey of landlords, finding an average duration of 1.8 years and a median duration of 2.1 years.
+
+The idea of assessing housing affordability against *potential* rather than *actual* housing costs is not new. Lerman and Reeder (1987) developed a measure that replaced actual housing costs with what it would cost to obtain housing of a minimum physical standard. What is of importance at this point is that conceptual differences and associated operationalization can generate profoundly different outcomes. For instance, in the first quarter of 2018 the median rental cost in Auckland was $450 for actual rents compared with $520 potential rent for new lets. This implies a typical sitting tenant could face a $70 per week rent increase if their circumstances changed and they needed to pay contemporary market rent. Alternatively, this can be thought of as a typical $70 per week mobility premium that a tenant may face to change landlord or location.
+
+# Exploring alternative approaches to measuring rental affordability
+
+This paper will now examine the potential of different datasets and conceptualisations to enrich our understanding of rental affordability. It starts with a more detailed review of the different datasets available to us and their comparative coverage. It then goes onto generating a set of derivative rent affordability measures to illustrate the potential of these measures. Using geographic area median incomes and rents to compute aggregate indicators, both as ratios and residuals, a preliminary analysis is undertaken comparing actual costs and potential rent costs. 
+
+
+Three datasets can be used to explore rental affordability in New Zealand. They are:
+
+* Tenancy Bonds, Ministry of Business Innovation and Employment
+
+    + Landlords in New Zealand can ask tenants to pay a monetary bond as security when they move into a property. Landlords who charge a bond must legally lodge it with the Ministry of Business Innovation and Employment's Tenancy Services within 23 working days. The Bond lodgement form (which can be completed online or by post) includes a requirement to state the weekly rent payment. Other data captured includes the dwelling address, dwelling type (such as room, flat, house), the number of bedrooms, and sector of landlord.[^8] A unique property ID is created as part of the administrative process. The dataset used for this analysis covers bonds lodged 1 January 1993 -- 30 September 2020. It contains 4.5 million price observations, for 1 million unique properties. Stats NZ (2015) explains the dataset further. 
+
+[^8]: Since 7 April 2019 a policy change means that bonds are no longer lodged in the Tenancy Bonds database for Kāinga Ora state rentals.
+
+* Census of Population and Dwellings, Stats NZ
+
+    + The New Zealand Census of Population and Dwellings ('Census') provides an official count of the people and dwellings in New Zealand. Personal and dwelling questionnaires allow estimation of statistics about tenure, income, and rental costs. Data is usually available every 5 years (there is a 7-year gap between 2006 and 2013 Censuses due to a delay to the planned 2011 Census, following the Canterbury earthquakes). A key strength of the Census data is the ability to analyse the data for small geographies, such as Territorial Local Authorities, Auckland Local Boards, and Statistical Area geographies. Available income data is annual self-reported gross (before tax) income. It should be noted that the 2018 Census is considered less robust than previous census due to low response rates (Jack and Graziadei, 2019). Rental amounts are self-reported currently paid rent. Income data is collected in bands (for 2018 Census: $5,000 -- $10,000 bands for income below $70,000; then $30,000 - $50,000 bands until "$150,001 or more"), rental amounts are reported to the nearest dollar (Stats NZ, 2018). For rental amounts, about 20% of responses were imputed: 4% using Housing New Zealand Corporation data on state housing, 7% from Tenancy Bonds, 8% using statistical imputation techniques. Imputation using Tenancy bond data used the rental amount when the bond was lodged, which may not be representative of the currently paid rent (Stats NZ, 2019b), on a stock concept. This extraordinary imputation is a potential source of added uncertainty in the derived statistics and means that Census 2018 is not a wholly independent data source, from Tenancy Bonds data, for 2018.
+
+* Household Economic Surveys, Stats NZ
+
+    + The Household Economic Surveys, a regular collection of data on household income and expenditure, is one of the premier sources for statistics on housing affordability. The design is a scientifically random sample of households weighted to be representative of all New Zealand households. Estimation weights are calibrated to Census-based population benchmarks. There are no specific benchmarks for household tenure (such as for the number of homeowners and renters) so statistics by tenure can noticeably fluctuate over time.
+
+    + The survey has run nearly every year since 1974, with an achieved sample size of about 3,000-5,000 households (20,000 households since 2019). Households are interviewed over the course of a year. Statistics are reported annually for the year to June. Expenditure on rent is representative of currently paid rental costs. 
+
+Bentley and Krsinich (2017) assessed the coverage of the Tenancy Bond data and concluded that the data appears reasonable compared with the New Zealand Census of Population and Dwellings. Their study found better coverage in the main urban centres. Perhaps suggesting more informal rental agreements in smaller settlements.  Miller et al. (2018) found similar distributions for weekly rent amount, number of bedrooms, and sector of landlord, using New Zealand Census and Tenancy Bond data. They conclude "... we see good consistency between the tenancy bond variables and the census ... The concepts used in the tenancy bonds are consistent with the statistical standard used by the census for each of the housing variables. Levels of missing data for tenancy bond variables are low, and comparable with the census levels of missing data." The research included assessment of microdata linked by property address. The analysis found 79 percent of linked properties had a rental amount in the same Census rent band (66 percent), or one rent band higher (13 percent).[^C1] Successful linking was possible for only a subset of the data (after data cleaning, less than half of all rental properties). 
+
+[^C1]: Rent amount bands used were: Under $50; $50-$79; $80-$99; $100-$124; $125-$149; $150-$174; $175-$199; $200-$249; $250-$299; $300-$349; $350-$399; $400-$449; $450-$499; $500+
+
+While the datasets can be statistically linked to each other for research purposes, the different sources are generally reported independently of each other, using a variety of different metrics (Table 1). The Tenancy Bond data shows the flow of new tenancies. That is, tenancies that have been delivered into the market and accepted by a tenant. This is, of course, not necessarily a new dwelling or property. A property may be rented sequentially a number of times to different tenants. The rent associated with each new tenancy may be different from the rent paid by the previous tenant. When a new tenancy agreement is established a bond will be set and that bond reflects the rents available at that time. It can be referred to as a contemporary market price. It, in comparison to stock rent data, indicates the potential rents an individual seeking a rental dwelling might have to pay at that moment. This flow of new tenancies may be priced higher than previous flows. For tenants who may be looking to move, there may be a difference between their rental costs in their current tenancy and the range of prices available to them if they sought a new tenancy. 
+
+## Table 1: Summary of major rental data sources {-}
+
+| Data              | Collection method  | Concept          | Statistics | Frequency |
+| ------------------------------ |:-----------------------:| :--------------------------------------------------------:|:--------------------------------------------------------:|:-----------------------:|
+| Tenancy Bonds     | Bond administration | *Flow* of new tenancies, reflecting contemporary market price | Arithmetic and geometric mean, median weekly rental amounts. | Live database|
+|Tenancy Bonds | Bond administration |*Flow* and modelled *stock* concepts|Rental Price Index|Monthly|
+| Census of Population and Dwellings     | Census survey | *Stock* of tenancies, reflecting currently paid *actual* rental costs. | Median weekly rental amounts|5-7 yearly|
+| Household Economic Survey    | Sample survey | *Stock* of tenancies, reflecting currently paid *actual* rental costs. | Arithmetic mean weekly rental amounts|Annually|
+
+
+The rents that tenants are actually paying, compared with the rent that they agree to pay for a new tenancy, are referred to as stock. Data on these are drawn from two different sources: the New Zealand Census and the Household Economic Survey (HES). There can be significant differences between stock and flow. This is evident in Figure 4 which effectively shows the differences between actual rents and potential rent according to recently lodged tenancy bond.
+
+In Figure 4, which compares weekly rental amounts for Census compared with Tenancy Bonds by Regional Council for the same period, shows some substantial differences between stock rents and flow rents. For instance, at the time of the 2018 Census (2018Q1), Wellington region had the greatest difference between median *actual* and *potential* rent of $110 (median actual rent $350; potential rent $460). Thirteen of sixteen regional councils had a difference of $50 or more between actual rents and the rents that were newly being taken up. The smallest difference between actual and potential rent is found in the West Coast Region which had both the lowest rental costs and decreasing rents for newly let properties in the years preceding the 2018 Census.
+
+
+## Figure 4 {-}
+
+```{r, fig.width = 10, fig.height = 10}
+
+# Regional comparison of Census and Tenancy Bonds data
+
+# 4.1 Remove NZ to just look at regional councils
+
+combo_rent1a <- combo_rent1 %>% 
+  filter(area!="New Zealand")
+
+# 4.2 Plot the data
+
+p4 <- ggplot(combo_rent1a, aes(date,med_rent, colour=source))+
+  geom_line()+
+  geom_point(data=filter(combo_rent1a, source=="Census, median rent"), show.legend = F)+
+  scale_colour_manual(values=c("grey20",palc[1]), name="",
+                      labels=c("Census, median rent"="Census, actual costs (stock concept)",
+                               "Start date, Flow"="Tenancy Bonds, potential costs (flow concept)"))+
+  scale_y_continuous(labels=dollar)+
+ facet_wrap(~area, ncol=4,
+             scales="free",
+             labeller = labeller(area = label_wrap_gen(20)))+
+  theme_ab()+
+  theme(legend.position="top")+
+  labs(title="Median weekly rental amount, data source and concept",
+       x="",y="",
+       caption="Source: Censuses of population and dwellings 1996-2018 and Tenancy Bonds")+
+  guides(col = guide_legend(nrow = 1))
+
+p4
+
+combo_rent1a_fig <- combo_rent1a %>% 
+  mutate(source=recode(source,
+                       "Census, median rent"="Census, actual costs (stock concept)",
+                               "Start date, Flow"="Tenancy Bonds, potential costs (flow concept)"))
+
+write.csv(combo_rent1a_fig,"Fig4.csv", row.names = F)
+
+```
+
+The ratio of median rental costs to median household income can be used to explore aspects of rent affordability. Higher ratios indicate less rental affordability. These are set out by regional council in Figure 5. In all regions stock rental costs are a greater burden using the *potential* rental costs if a tenant sought and acquired a new property and tenancy.   
+
+## Figure 5 {-}
+
+```{r, fig.width = 10, fig.height = 10}
+
+# Rental affordability ratios
+
+# 5.1 Select data for NZ and regions (and tidy)
+
+combo_rent2b <- combo_rent2 %>% 
+  mutate(area=factor(area, levels=unique(area[order(-ratio)])))
+
+combo_rent2c <- combo_rent2b %>%
+  select(date,ratio,source,area) %>% 
+  mutate(source=recode(source,"Census, median rent"="Stock",
+                               "Start date, Flow"="Flow" )) %>% 
+  spread(source,ratio)
+
+# 5.2 Plot the data
+
+p5 <- ggplot(combo_rent2b, aes(date,ratio, colour=source))+
+  geom_point(size=2)+
+  geom_line()+
+  geom_ribbon(data=combo_rent2c, aes(ymin = Stock, ymax = Flow, y=NULL, colour=NULL), alpha=.3, fill = palc[2], show.legend=F)+
+  scale_colour_manual(values=c("grey20", palc), name="",
+                      labels=c("Census, median rent"="Actual rental costs (stock concept)",
+                               "Start date, Flow"="Potential rental costs (flow concept)"))+
+  scale_x_date(breaks=c(as.Date("1996-03-31"),as.Date("2001-03-31"),as.Date("2006-03-31"),
+                        as.Date("2013-03-31"),as.Date("2018-03-31")),
+               date_labels = "%Y")+
+  scale_y_continuous(labels=percent_format(accuracy = 1))+
+ facet_wrap(~area, ncol=5, 
+             # scales="free",
+             labeller = labeller(area = label_wrap_gen(20)))+
+  theme_ab()+
+  theme(legend.position="top",
+        axis.text.x=element_text(angle = 90, vjust=.5))+
+  labs(title="Rental affordability",
+       subtitle="Ratio of median rent to median household income",
+       x="",y="",
+       caption="Shaded area shows rental affordability ratio rigidity risk 
+       \nSource: Author's calculations from Census and Tenancy Bonds")+
+  guides(col = guide_legend(nrow = 1))
+
+p5
+
+combo_rent2b_fig <- combo_rent2b %>%
+  select(date,ratio,source,area) %>% 
+  mutate(source=recode(source,"Census, median rent"="Actual rental costs (stock concept)",
+                               "Start date, Flow"="Potential rental costs (flow concept)"))
+
+write.csv(combo_rent2b_fig,"Fig5.csv", row.names = F)
+
+```
+
+The shaded area in each of the graphs in Figure 5 represent the *rental affordability ratio rigidity risk*. This has increased in most regions between 2013 and 2018. Several regions showed an improvement in rental affordability over this period using actual rental costs, but a deterioration using potential rental costs. The exceptions to this trend are Canterbury and West Coast regions, where median weekly rental amounts decreased in the years prior to 2018.
+
+The difference between actual or stock rents and flow rents indicating new tenancies are set out in Figure 6 at the time of the 2018 Census (2018 Q1) by territorial authorities and for New Zealand as whole. Residual median income is a lower amount using the *potential* rental costs of new tenancies. There is no clear relationship between the level of residual income and the *rental affordability residual rigidity risk*.
+
+
+## Figure 6 {-}
+
+
+```{r, fig.width = 10, fig.height = 12}
+
+# Residual affordability (income less rent)
+
+# 6.1 Plot the data
+
+p6 <- ggplot(rent_risk, aes(res,area, colour=source))+
+  geom_point(size=2)+
+  geom_line(aes(group=as.factor(area), linetype="Rental affordability residual rigidity risk"),colour=palc[2])+
+  scale_linetype_manual(name="", values="solid")+
+  scale_colour_manual(values=c("grey20",palc), name="",
+                      labels=c("Census, median rent"="Actual rental costs (stock concept)",
+                               "Start date, Flow"="Potential rental costs (flow concept)"))+
+  scale_x_continuous(labels=dollar)+
+  # facet_wrap(~date, ncol=5)+
+  theme_ab()+
+  theme(legend.position="top")+
+  labs(title="Rental affordability",
+       subtitle="Median annual household income less median annual household rent, 2018Q1",
+       x="",y="",
+       caption="Source: Author's calculations from Census and Tenancy Bonds")+
+  guides(col = guide_legend(nrow = 2))
+
+p6
+
+rent_risk_fig <- rent_risk %>% 
+  mutate(source=recode(source,
+                       "Census, median rent"="Actual rental costs (stock concept)",
+                               "Start date, Flow"="Potential rental costs (flow concept)"))
+
+write.csv(rent_risk,"Fig6.csv", row.names = F)
+
+```
+
+# Discussion and future research
+
+To undertake the analysis presented above, we had access to unit record Tenancy Bond data to calculate regional aggregate statistics (on a quarterly basis). Census statistics (such as median rental amounts) are publicly available to fine geographic detail. We use small area Census ('meshblock') files (which also include statistics at regional council and territorial authority levels). New Zealand level statistics for 1996 are not included in the small area files, so these were supplemented with median household income supplied by correspondence with Stats NZ and median weekly rent estimated from a published report (Stats NZ, 2013). Each meshblock file contains data for the current and past two Censuses. There are sometimes differing values for the same statistic by region and year depending on the file used (likely a reflection of small boundary changes and rounding). In these cases we took the arithmetic mean of the available estimates. 
+
+Rental costs are observed in the bond data when tenancies begin, or a new bond lodgement form is submitted. Average rental amounts (such as arithmetic or geometric mean, median) for newly lodged bonds, over a given short reference period (quarter, month, week), are representative of the price of newly let properties (in this paper we use a quarterly frequency). There is currently no requirement to update the bond lodgement form when within tenancy rents are increased. So simply using the rental amount at the start of tenancies will give an under-estimate of currently paid rent for some properties. In contrast, the Census (and Household Economic Survey) are designed to be nationally representative of the actual rental amounts paid for all rental properties, regardless of whether these are new or existing tenancies. 
+
+If we assume that both Census and Tenancy Bond data are representative of New Zealand and regional rentals (see Section 4.1 for a review of data quality), we can use the difference in concepts for each dataset to estimate two metrics of rental affordability:
+
+* affordability of *currently paid* rental costs -- a *stock* concept of affordability -- from Census data
+* affordability of *potential* rental costs for newly let properties -- a *flow* concept of affordability -- from Tenancy Bonds data
+
+For each of these concepts we can calculate rental affordability indicators, using both the *ratio* of median rental costs to median income and *residual* income after rental costs. In each case estimates of median gross household income from Census is used. The difference between the same metric (ratio or residual) but varying the concept (actual or potential) is a new statistic reflecting *rental affordability rigidity risk*. 
+
+This paper highlights an important consideration when comparing rental amounts with income to understand rental affordability. We’ve shown that, on average, currently paid or actual rents lag new tenancy or so-called market rents. Overseas it is well established that some rents can persist within unchanged tenancies (Ozimek, 2014). Even when landlords legally could increase prices many do not raise the rents for sitting tenants to the same extent as they would for new tenants (Miceli and Sirmans, 1999; Hoffman and Kurz, 2002; Genesove, 2003). Our understanding of these dynamics in New Zealand is limited. But is clear that median rental amounts reported in New Zealand Censuses compared with administrative Tenancy Bonds data show differences. These are effectively differences between actual rental amounts paid across the entire stock of rental properties (reported in the Census) and potential rent based on the flow of newly let properties (reported in the Tenancy Bonds data). The difference between actual (a stock concept) rent and market or potential rents (a flow concept) allows us to think about a new statistic reflecting rental affordability rigidity risk. These measures are not intended to replace any existing affordability statistics, rather they provide supplementary insight into how rental affordability is experienced; highlighting financial constraints on renters’ choices to move location and sometimes limited options to reduce costs if their circumstances change.
+
+Previous research (Bentley and Krsinich, 2017; Miller et al., 2018; Bentley, 2018) suggests the rental data sources used are of good quality. However, we cannot discount the possibility that some of the differences between data sources will be due to data quality. There are likely to be errors and omissions in both Census and Tenancy Bonds data. Additional analysis of disaggregated data coverage, for example for smaller geographic areas, will aid understanding of the robustness of our results. Furthermore, in this paper household income data was gross (before tax) household income from Census. Conceptually, net (after tax) income is preferable for affordability analysis (Gabriel et al., 2005). Census income is self-reported in discrete, banded, amounts. Reliability of Census income estimates, which are usefully available for small geographies, may be enhanced by calibrating the estimates to other data sources, such as the Household Economic Survey and tax data, which have finer breakdowns of income amounts by source of income.
+
+The Tenancy Bonds data is continuously available. In addition, as administrative data it is also facilitates the production of statistics at no additional cost. In comparison, the rich Census data is only available five-yearly. It would therefore be desirable to be able to estimate rental amounts on a stock concept for the Tenancy Bond data. There is currently no requirement to update the bond lodgement form when within tenancy rents are increased. So simply using the rental amount at the start of tenancies will give an under-estimate of currently paid rent for some properties. Bentley (2018) applied a simple model that carries forward rental amounts from the lodgement date for a maximum of 2-years.[^9] This produced comparable results with a longitudinal survey of rental properties for rental price changes, but a more sophisticated lagging model would need to be developed to properly reflect the distribution of levels of rental amounts. Analysis of the distribution of tenancy lengths may reveal sufficient information to enable a predictive model to be developed.
+
+Future research could also explore linked Census-Tenancy Bond microdata which is available with strict security protocols in Stats NZ’s Integrated Data Infrastructure. There is opportunity consider whether households with greater rental rigidity risk are more likely to live in a house of poorer physical quality or which is deemed overcrowded. It would be useful to understand whether individual renters paying well below market rent have different relationships with landlords or whether there is something about the imperatives of the property investors that generates those situations. There are questions two around the extent to which gaps between actual rents and market rents inhibit labour markets and tenants from taking up employment opportunities elsewhere. 
+
+
+[^9]: Implemented in the CPI Rental Price Index, since 2019 (Stats NZ, 2019a)
+
+
+# References {-}
+
+Andrews, D., A. Caldera Sánchez and Å. Johansson (2011), “Housing Markets and Structural
+Policies in OECD Countries”, OECD Economics Department Working Papers, No. 836,
+OECD Publishing, Paris, http://dx.doi.org/10.1787/5kgk8t2k9vf3-en.
+
+Barker, A. (2019). [Improving well-being through better housing policy in New Zeland.](https://www.oecd-ilibrary.org/docserver/b82d856b-en.pdf?expires=1595547514&id=id&accname=guest&checksum=AE13A38A4F110DEB694B47D5012C371F) Economics Department Working Papers No. 1565. September 2019. OECD https://doi.org/10.1787/b82d856b-en
+
+Bentley, A. & Krsinich, F. (2017). [Towards a big data CPI for New Zealand.](http://www.ottawagroup.org/Ottawa/ottawagroup.nsf/4a256353001af3ed4b2562bb00121564/1ab31c25da944ff5ca25822c00757f87/$FILE/Towards%20a%20big%20data%20CPI%20for%20New%20Zealand%20-Alan%20Bentley,%20Frances%20Krsinich%20-%20Paper.pdf) Paper presented at the Ottawa Group 2017, Eltville, Germany. Available at http://www.ottawagroup.org (accessed October 2019).
+
+Bentley, A. (2018). [Rentals for housing: A model-based estimator of inflation from administrative data.](https://www.researchgate.net/publication/341310077_NZAE_Bentley2018pdf) Paper presented at the New Zealand Association of Economists (NZAE) conference, Auckland, New Zealand, June 2018
+
+Bentley, A. (2019). [Homeownership in New Zealand: Trends over time and generations.](https://www.researchgate.net/publication/337745298_Homeownership_in_New_Zealand_Trends_over_time_and_generations) Presentation at New Zealand's Population Conference 2019.
+
+Coates, D., P. Anand and M. Norris (2015), [“Housing, happiness and capabilities: A summary of the international evidence and models”](https://www.econstor.eu/bitstream/10419/147532/1/857485571.pdf), Open Discussion Papers in Economics, Vol. 81.
+
+Deng, Y., Gabriel, S.A., and Nothaft, F.E. (2002) ["Duration of Residence in the Rental Housing Market"](https://lusk.usc.edu/sites/default/files/working_papers/wp_2002-5.pdf) Working Paper 8625, USC Lusk Center for Real Estate.
+
+Figenshow, S. and Saville-Smith, K. (2021). Housing. In Social Policy. Chapter 18. Forthcoming.
+
+Genesove, D. (2003). The nominal rigidity of apartment rents. Review of Economics and Statistics, 85(4), 844-853.
+
+Gabriel, M., Jacobs, K., Arthurson, K., and Burke, T., with Yates J. (2005). [Conceptualising and measuring the housing affordability problem.](https://core.ac.uk/reader/43326790) National Research Venture 3: Housing Affordability for Lower Income Australians Research Paper 1. Australian Housing and Urban Research Institute. May 2005.
+
+Herbert, C., Hermann, A., and McCue, D. (2018). [Measuring Housing Affordability: Assessing the 30 Percent of Income Standard.](https://www.jchs.harvard.edu/sites/default/files/Harvard_JCHS_Herbert_Hermann_McCue_measuring_housing_affordability.pdf) Joint center for housing studies of Harvard University working paper. September 2018.
+
+Hoffmann, J., and Kurz, C. (2002). [Rent indices for housing in West Germany 1985 to 1998.](https://www.ecb.europa.eu/pub/pdf/scpwps/ecbwp116.pdf?ed631d68eb72ccfe5ebe48b726da9618) Working paper no. 116. European Central Bank.
+
+Hulchanski, J. D. (1995). The concept of housing affordability: Six contemporary uses of the housing
+expenditure-to-income ratio, Housing Studies 10(4), pp. 471-491.
+
+Hyslop, D. R. and Rea, D. (2018). Do housing allowances increase rents? Evidence from a discrete policy change July 2018 Journal of Housing Economics 46. DOI: 10.1016/j.jhe.2019.101657
+
+Jack, M., and Graziadei, C. (2019). [Report of the Independent Review of New Zealand’s 2018 Census.](https://www.stats.govt.nz/reports/report-of-the-independent-review-of-new-zealands-2018-census) July 2019
+Wellington, New Zealand ISBN: 978-1-98-858337-2 
+
+Jackson, N., and James, B. (2016). [Home Ownership, Renting, and Residence in a Home Owned by a Family Trust for the Western Bay of Plenty and Total New Zealand, by birth cohort, for the period 1986-2013](https://renting.goodhomes.co.nz/wp-content/uploads/2017/06/wbop-cohort-report-final2.pdf) A Working Paper prepared for the Population Ageing Technical Advisory Group Western Bay of Plenty Sub-region. October 2016.
+
+Johnson, P. 2015. [UK Consumer Price Statistics: A Review.](https://www.statisticsauthority.gov.uk/archive/reports---correspondence/current-reviews/uk-consumer-price-statistics---a-review.pdf) January 2015, UK Statistics Authority. Available at https://www.statisticsauthority.gov.uk (accessed October 2019).
+
+New Zealand Department of Prime Minister and Cabinet (2020) [Child Poverty Related Indicators Report 2020.](https://dpmc.govt.nz/publications/child-poverty-related-indicators-report-html#section-2) 2 July 2020.
+
+New zealand Human Rights Commission (2017). [The human right to adequate housing in New Zealand.](https://www.hrc.co.nz/files/4215/1363/5639/2017_07_25_-_Right_to_housing_flyer_-_updated.pdf) Right to housing flyer. July 2017.
+
+ILO, IMF, OECD, UNECE, Eurostat & The World Bank. (2020). [Consumer Price Index Manual: Concepts and Methods.](https://www.imf.org/~/media/Files/Data/CPI/cpi-manual-concepts-and-methods.ashx) Draft January 2020
+
+Lerman, D. L., and William J. R. (1987). The Affordability of Adequate Housing. American Real Estate and Urban Economics Association Journal 15(4):389–404.
+
+Lewis, R., and Restieaux, A. 2015. [Improvements to the measurement of owner occupiers’ housing costs and private housing rental prices.](http://webarchive.nationalarchives.gov.uk/20160105160709/http:/www.ons.gov.uk/ons/guide-method/user-guidance/prices/cpi-and-rpi/improvements-to-the-measurement-of-owner-occupiers--housing.pdf) January 2015, UK Office for National Statistics. Available from http://webarchive.nationalarchives.gov.uk (accessed October 2019).
+
+Miceli, T., Sirmans, C.F. 1999. [Tenant turnover, rental contracts, and self selection.](https://doi.org/10.1006/jhec.1999.0253) J. Housing
+Econ. 8, 301–311. DOI:https://doi.org/10.1006/jhec.1999.0253
+
+Miller, S., Suie, S. and Bycroft, C. 2018. [Comparing housing information from census and tenancy bond data.](https://www.stats.govt.nz/assets/Uploads/Reports/Comparing-housing-information-from-census-and-tenancy-bond-data/comparing-housing-information-from-census-and-tenancy-bond-data.pdf) March 2018, Stats NZ. Available from https://www.stats.govt.nz (accessed October 2019).
+
+Ozimek, A. (2014). [Sticky rents and the CPI for owner-occupied housing.](http://www.econsultsolutions.com/wp-content/uploads/Sticky-Rents-and-the-CPI-for-Owner-Occupied-Housing-2014-1.pdf) Econsult Solutions Working Paper. January, 2014.
+
+R Core Team (2020). R: A language and environment for statistical computing. R Foundation for Statistical Computing, Vienna, Austria. URL https://www.R-project.org/.
+
+Rehm, M., and Yang Yang (2020). ‘Betting on House Prices: Housing Speculation in Auckland’,
+Affordable Housing for Generations Research Programme Bulletin. Wellington: Building Better Homes, Towns and Cities.
+
+Shimizu, C., Nishimura, K. G., and Watanabe, T. (2010). [Residential Rents and Price Rigidity: Micro Structure and Macro Consequences.](https://core.ac.uk/download/pdf/6302616.pdf) The Research Institute of Economy, Trade and Industry, Japan Discussion Paper Series 09-E -044
+
+Shimizu, C., Diewert, W. E., Nishimura, K. G., and Watanabe, T. (2013). [The Estimation of Owner Occupied Housing Indexes The Estimation of Owner Occupied Housing Indexes using the RPPI: The Case of Tokyo](https://www.centralbank.e.u-tokyo.ac.jp/wp-content/uploads/2018/08/p_wp022.pdf) Understanding persistent deflation in Japan. Working paper series No. 022. October 2013. University of Tokyo.
+
+Stats NZ (2013). Rental affordability 1998–2012: Regional distributions. ISBN 978-0-478-40843-0 
+
+Stats NZ (2015). [IDI Data Dictionary: Tenancy bond data.](http://archive.stats.govt.nz/browse_for_stats/snapshots-of-nz/integrated-data-infrastructure/idi-data/tenancy-bond-data.aspx) (July 2015 edition). Available from http://archive.stats.govt.nz (accessed October 2019).
+
+Stats NZ (2018). [2018 Census: Design of forms.](https://www.stats.govt.nz/methods/2018-census-design-of-forms) 9 February 2018. ISBN 978-1-98-852855-7 Available from https://www.stats.govt.nz (accessed November 2020).
+
+Stats NZ (2019a). [New methodology for rental prices in the CPI.](https://www.stats.govt.nz/methods/new-methodology-for-rental-prices-in-the-cpi) 14 February 2019. ISBN 978-1-98-858306-8 Available from https://www.stats.govt.nz (accessed November 2020).
+
+Stats NZ (2019b). [Data sources, editing, and imputation in the 2018 Census.](https://www.stats.govt.nz/methods/data-sources-editing-and-imputation-in-the-2018-census) 
+ISBN 978-1-98-858371-6 Available from https://www.stats.govt.nz (accessed November 2020).
+
+Stats NZ (2020a). Housing in Aotearoa: 2020. Retrieved from www.stats.govt.nz (accessed February 2020).
+
+Stats NZ (2020b). Ngā Tūtohu Aotearoa - Indicators Aotearoa New Zealand. Wellbeing data for New Zealanders. Retrieved from www.stats.govt.nz (accessed November 2020).
+
+Stone, M. E. (2006) [‘What Is Housing Affordability? The Case for the Residual Income Approach’.](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.1021.8680&rep=rep1&type=pdf)
+Housing Policy Debate, 17(1) pp. 151–84
+
+Tenancy Services (2020) [Residential Tenancies Amendment Act 2020 now in force.](https://www.tenancy.govt.nz/about-tenancy-services/news/residential-tenancies-amendment-act-2020-now-in-force/) 12 August 2020
+
+United Kingdom Affordable Housing Commission (2019) [Defining and measuring housing affordability – an alternative approach.](http://www.nationwidefoundation.org.uk/wp-content/uploads/2019/06/Definingandmeasuringhousingaffordability.pdf) A report by the Affordable Housing Commission. June 2019.

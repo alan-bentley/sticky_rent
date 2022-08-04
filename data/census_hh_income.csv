@@ -1,0 +1,421 @@
+"","area","date","source","med_inc"
+"1","Area Outside Region",1996-03-31,"Census, median household income",27600
+"2","Area Outside Region",2001-03-31,"Census, median household income",34850
+"3","Area Outside Region",2006-03-31,"Census, median household income",49100
+"4","Area Outside Region",2013-03-31,"Census, median household income",67750
+"5","Area Outside Region",2018-03-31,"Census, median household income",71600
+"6","Ashburton District",1996-03-31,"Census, median household income",29900
+"7","Ashburton District",2001-03-31,"Census, median household income",35500
+"8","Ashburton District",2006-03-31,"Census, median household income",46066.6666666667
+"9","Ashburton District",2013-03-31,"Census, median household income",63100
+"10","Ashburton District",2018-03-31,"Census, median household income",72100
+"11","Auckland Region",1996-03-31,"Census, median household income",42200
+"12","Auckland Region",2001-03-31,"Census, median household income",49000
+"13","Auckland Region",2006-03-31,"Census, median household income",63400
+"14","Auckland Region",2013-03-31,"Census, median household income",76500
+"15","Auckland Region",2018-03-31,"Census, median household income",93900
+"16","Bay of Plenty Region",1996-03-31,"Census, median household income",30900
+"17","Bay of Plenty Region",2001-03-31,"Census, median household income",34400
+"18","Bay of Plenty Region",2006-03-31,"Census, median household income",45400
+"19","Bay of Plenty Region",2013-03-31,"Census, median household income",54600
+"20","Bay of Plenty Region",2018-03-31,"Census, median household income",66600
+"21","Buller District",1996-03-31,"Census, median household income",24700
+"22","Buller District",2001-03-31,"Census, median household income",25100
+"23","Buller District",2006-03-31,"Census, median household income",31933.3333333333
+"24","Buller District",2013-03-31,"Census, median household income",53300
+"25","Buller District",2018-03-31,"Census, median household income",40600
+"26","Canterbury Region",1996-03-31,"Census, median household income",32200
+"27","Canterbury Region",2001-03-31,"Census, median household income",36200
+"28","Canterbury Region",2006-03-31,"Census, median household income",47900
+"29","Canterbury Region",2013-03-31,"Census, median household income",65000
+"30","Canterbury Region",2018-03-31,"Census, median household income",75100
+"31","Carterton District",1996-03-31,"Census, median household income",29100
+"32","Carterton District",2001-03-31,"Census, median household income",33900
+"33","Carterton District",2006-03-31,"Census, median household income",43766.6666666667
+"34","Carterton District",2013-03-31,"Census, median household income",54950
+"35","Carterton District",2018-03-31,"Census, median household income",63700
+"36","Central Hawke's Bay District",1996-03-31,"Census, median household income",29700
+"37","Central Hawke's Bay District",2001-03-31,"Census, median household income",36200
+"38","Central Hawke's Bay District",2006-03-31,"Census, median household income",44000
+"39","Central Hawke's Bay District",2013-03-31,"Census, median household income",52500
+"40","Central Hawke's Bay District",2018-03-31,"Census, median household income",59800
+"41","Central Otago District",1996-03-31,"Census, median household income",28000
+"42","Central Otago District",2001-03-31,"Census, median household income",30000
+"43","Central Otago District",2006-03-31,"Census, median household income",43400
+"44","Central Otago District",2013-03-31,"Census, median household income",54800
+"45","Central Otago District",2018-03-31,"Census, median household income",68300
+"46","Chatham Islands Territory",1996-03-31,"Census, median household income",27600
+"47","Chatham Islands Territory",2001-03-31,"Census, median household income",35200
+"48","Chatham Islands Territory",2006-03-31,"Census, median household income",48833.3333333333
+"49","Chatham Islands Territory",2013-03-31,"Census, median household income",65150
+"50","Chatham Islands Territory",2018-03-31,"Census, median household income",71600
+"51","Christchurch City",1996-03-31,"Census, median household income",32900
+"52","Christchurch City",2001-03-31,"Census, median household income",36500
+"53","Christchurch City",2006-03-31,"Census, median household income",48200
+"54","Christchurch City",2013-03-31,"Census, median household income",65300
+"55","Christchurch City",2018-03-31,"Census, median household income",73900
+"56","Clutha District",1996-03-31,"Census, median household income",29400
+"57","Clutha District",2001-03-31,"Census, median household income",35500
+"58","Clutha District",2006-03-31,"Census, median household income",42133.3333333333
+"59","Clutha District",2013-03-31,"Census, median household income",55750
+"60","Clutha District",2018-03-31,"Census, median household income",61100
+"61","Dunedin City",1996-03-31,"Census, median household income",30500
+"62","Dunedin City",2001-03-31,"Census, median household income",32500
+"63","Dunedin City",2006-03-31,"Census, median household income",43400
+"64","Dunedin City",2013-03-31,"Census, median household income",54400
+"65","Dunedin City",2018-03-31,"Census, median household income",62000
+"66","Far North District",1996-03-31,"Census, median household income",26000
+"67","Far North District",2001-03-31,"Census, median household income",28300
+"68","Far North District",2006-03-31,"Census, median household income",37000
+"69","Far North District",2013-03-31,"Census, median household income",42150
+"70","Far North District",2018-03-31,"Census, median household income",51400
+"71","Gisborne District",1996-03-31,"Census, median household income",29100
+"72","Gisborne District",2001-03-31,"Census, median household income",30900
+"73","Gisborne District",2006-03-31,"Census, median household income",41000
+"74","Gisborne District",2013-03-31,"Census, median household income",50500
+"75","Gisborne District",2018-03-31,"Census, median household income",57900
+"76","Gisborne Region",1996-03-31,"Census, median household income",29100
+"77","Gisborne Region",2001-03-31,"Census, median household income",30900
+"78","Gisborne Region",2006-03-31,"Census, median household income",41000
+"79","Gisborne Region",2013-03-31,"Census, median household income",50500
+"80","Gisborne Region",2018-03-31,"Census, median household income",57900
+"81","Gore District",1996-03-31,"Census, median household income",30200
+"82","Gore District",2001-03-31,"Census, median household income",34200
+"83","Gore District",2006-03-31,"Census, median household income",41066.6666666667
+"84","Gore District",2013-03-31,"Census, median household income",54500
+"85","Gore District",2018-03-31,"Census, median household income",60100
+"86","Grey District",1996-03-31,"Census, median household income",28200
+"87","Grey District",2001-03-31,"Census, median household income",29650
+"88","Grey District",2006-03-31,"Census, median household income",40333.3333333333
+"89","Grey District",2013-03-31,"Census, median household income",56000
+"90","Grey District",2018-03-31,"Census, median household income",56400
+"91","Hamilton City",1996-03-31,"Census, median household income",36300
+"92","Hamilton City",2001-03-31,"Census, median household income",40300
+"93","Hamilton City",2006-03-31,"Census, median household income",52800
+"94","Hamilton City",2013-03-31,"Census, median household income",64050
+"95","Hamilton City",2018-03-31,"Census, median household income",73000
+"96","Hastings District",1996-03-31,"Census, median household income",29700
+"97","Hastings District",2001-03-31,"Census, median household income",34100
+"98","Hastings District",2006-03-31,"Census, median household income",45800
+"99","Hastings District",2013-03-31,"Census, median household income",55900
+"100","Hastings District",2018-03-31,"Census, median household income",66600
+"101","Hauraki District",1996-03-31,"Census, median household income",28500
+"102","Hauraki District",2001-03-31,"Census, median household income",29600
+"103","Hauraki District",2006-03-31,"Census, median household income",36866.6666666667
+"104","Hauraki District",2013-03-31,"Census, median household income",43100
+"105","Hauraki District",2018-03-31,"Census, median household income",52500
+"106","Hawke's Bay Region",1996-03-31,"Census, median household income",29700
+"107","Hawke's Bay Region",2001-03-31,"Census, median household income",33450
+"108","Hawke's Bay Region",2006-03-31,"Census, median household income",44200
+"109","Hawke's Bay Region",2013-03-31,"Census, median household income",53200
+"110","Hawke's Bay Region",2018-03-31,"Census, median household income",62800
+"111","Horowhenua District",1996-03-31,"Census, median household income",26300
+"112","Horowhenua District",2001-03-31,"Census, median household income",27700
+"113","Horowhenua District",2006-03-31,"Census, median household income",33100
+"114","Horowhenua District",2013-03-31,"Census, median household income",39150
+"115","Horowhenua District",2018-03-31,"Census, median household income",47800
+"116","Hurunui District",1996-03-31,"Census, median household income",27800
+"117","Hurunui District",2001-03-31,"Census, median household income",31800
+"118","Hurunui District",2006-03-31,"Census, median household income",43333.3333333333
+"119","Hurunui District",2013-03-31,"Census, median household income",56350
+"120","Hurunui District",2018-03-31,"Census, median household income",65900
+"121","Invercargill City",1996-03-31,"Census, median household income",31800
+"122","Invercargill City",2001-03-31,"Census, median household income",31900
+"123","Invercargill City",2006-03-31,"Census, median household income",42300
+"124","Invercargill City",2013-03-31,"Census, median household income",54300
+"125","Invercargill City",2018-03-31,"Census, median household income",60500
+"126","Kaikoura District",1996-03-31,"Census, median household income",27600
+"127","Kaikoura District",2001-03-31,"Census, median household income",29600
+"128","Kaikoura District",2006-03-31,"Census, median household income",41600
+"129","Kaikoura District",2013-03-31,"Census, median household income",49550
+"130","Kaikoura District",2018-03-31,"Census, median household income",65600
+"131","Kaipara District",1996-03-31,"Census, median household income",27600
+"132","Kaipara District",2001-03-31,"Census, median household income",30050
+"133","Kaipara District",2006-03-31,"Census, median household income",37700
+"134","Kaipara District",2013-03-31,"Census, median household income",42450
+"135","Kaipara District",2018-03-31,"Census, median household income",53100
+"136","Kapiti Coast District",1996-03-31,"Census, median household income",29800
+"137","Kapiti Coast District",2001-03-31,"Census, median household income",33600
+"138","Kapiti Coast District",2006-03-31,"Census, median household income",42500
+"139","Kapiti Coast District",2013-03-31,"Census, median household income",53400
+"140","Kapiti Coast District",2018-03-31,"Census, median household income",64100
+"141","Kawerau District",1996-03-31,"Census, median household income",33300
+"142","Kawerau District",2001-03-31,"Census, median household income",30700
+"143","Kawerau District",2006-03-31,"Census, median household income",35633.3333333333
+"144","Kawerau District",2013-03-31,"Census, median household income",37250
+"145","Kawerau District",2018-03-31,"Census, median household income",42800
+"146","Lower Hutt City",1996-03-31,"Census, median household income",40000
+"147","Lower Hutt City",2001-03-31,"Census, median household income",45700
+"148","Lower Hutt City",2006-03-31,"Census, median household income",56700
+"149","Lower Hutt City",2013-03-31,"Census, median household income",69500
+"150","Lower Hutt City",2018-03-31,"Census, median household income",82200
+"151","Mackenzie District",1996-03-31,"Census, median household income",27700
+"152","Mackenzie District",2001-03-31,"Census, median household income",31950
+"153","Mackenzie District",2006-03-31,"Census, median household income",40166.6666666667
+"154","Mackenzie District",2013-03-31,"Census, median household income",55100
+"155","Mackenzie District",2018-03-31,"Census, median household income",67200
+"156","Manawatu-Wanganui Region",1996-03-31,"Census, median household income",29800
+"157","Manawatu-Wanganui Region",2001-03-31,"Census, median household income",32600
+"158","Manawatu-Wanganui Region",2006-03-31,"Census, median household income",41200
+"159","Manawatu-Wanganui Region",2013-03-31,"Census, median household income",50000
+"160","Manawatu-Wanganui Region",2018-03-31,"Census, median household income",57800
+"161","Manawatu District",1996-03-31,"Census, median household income",33100
+"162","Manawatu District",2001-03-31,"Census, median household income",37250
+"163","Manawatu District",2006-03-31,"Census, median household income",47033.3333333333
+"164","Manawatu District",2013-03-31,"Census, median household income",57600
+"165","Manawatu District",2018-03-31,"Census, median household income",68500
+"166","Marlborough District",1996-03-31,"Census, median household income",30100
+"167","Marlborough District",2001-03-31,"Census, median household income",33600
+"168","Marlborough District",2006-03-31,"Census, median household income",45500
+"169","Marlborough District",2013-03-31,"Census, median household income",55200
+"170","Marlborough District",2018-03-31,"Census, median household income",65100
+"171","Marlborough Region",1996-03-31,"Census, median household income",30100
+"172","Marlborough Region",2001-03-31,"Census, median household income",33600
+"173","Marlborough Region",2006-03-31,"Census, median household income",45500
+"174","Marlborough Region",2013-03-31,"Census, median household income",55200
+"175","Marlborough Region",2018-03-31,"Census, median household income",65100
+"176","Masterton District",1996-03-31,"Census, median household income",28800
+"177","Masterton District",2001-03-31,"Census, median household income",31300
+"178","Masterton District",2006-03-31,"Census, median household income",39733.3333333333
+"179","Masterton District",2013-03-31,"Census, median household income",48600
+"180","Masterton District",2018-03-31,"Census, median household income",57700
+"181","Matamata-Piako District",1996-03-31,"Census, median household income",37100
+"182","Matamata-Piako District",2001-03-31,"Census, median household income",40700
+"183","Matamata-Piako District",2006-03-31,"Census, median household income",49100
+"184","Matamata-Piako District",2013-03-31,"Census, median household income",59250
+"185","Matamata-Piako District",2018-03-31,"Census, median household income",68800
+"186","Napier City",1996-03-31,"Census, median household income",30000
+"187","Napier City",2001-03-31,"Census, median household income",32800
+"188","Napier City",2006-03-31,"Census, median household income",43433.3333333333
+"189","Napier City",2013-03-31,"Census, median household income",51900
+"190","Napier City",2018-03-31,"Census, median household income",61100
+"191","Nelson City",1996-03-31,"Census, median household income",31300
+"192","Nelson City",2001-03-31,"Census, median household income",33600
+"193","Nelson City",2006-03-31,"Census, median household income",43900
+"194","Nelson City",2013-03-31,"Census, median household income",54300
+"195","Nelson City",2018-03-31,"Census, median household income",63300
+"196","Nelson Region",1996-03-31,"Census, median household income",31300
+"197","Nelson Region",2001-03-31,"Census, median household income",33600
+"198","Nelson Region",2006-03-31,"Census, median household income",43900
+"199","Nelson Region",2013-03-31,"Census, median household income",54300
+"200","Nelson Region",2018-03-31,"Census, median household income",63300
+"201","New Plymouth District",1996-03-31,"Census, median household income",31600
+"202","New Plymouth District",2001-03-31,"Census, median household income",32800
+"203","New Plymouth District",2006-03-31,"Census, median household income",44700
+"204","New Plymouth District",2013-03-31,"Census, median household income",59850
+"205","New Plymouth District",2018-03-31,"Census, median household income",66100
+"206","New Zealand",1996-03-31,"Census, median household income",34700
+"207","New Zealand",2001-03-31,"Census, median household income",39600
+"208","New Zealand",2006-03-31,"Census, median household income",51400
+"209","New Zealand",2013-03-31,"Census, median household income",63800
+"210","New Zealand",2018-03-31,"Census, median household income",75700
+"211","Northland Region",1996-03-31,"Census, median household income",27800
+"212","Northland Region",2001-03-31,"Census, median household income",30200
+"213","Northland Region",2006-03-31,"Census, median household income",40200
+"214","Northland Region",2013-03-31,"Census, median household income",46900
+"215","Northland Region",2018-03-31,"Census, median household income",57000
+"216","Opotiki District",1996-03-31,"Census, median household income",23300
+"217","Opotiki District",2001-03-31,"Census, median household income",25950
+"218","Opotiki District",2006-03-31,"Census, median household income",32466.6666666667
+"219","Opotiki District",2013-03-31,"Census, median household income",40400
+"220","Opotiki District",2018-03-31,"Census, median household income",49200
+"221","Otago Region",1996-03-31,"Census, median household income",30000
+"222","Otago Region",2001-03-31,"Census, median household income",33200
+"223","Otago Region",2006-03-31,"Census, median household income",44400
+"224","Otago Region",2013-03-31,"Census, median household income",56400
+"225","Otago Region",2018-03-31,"Census, median household income",67000
+"226","Otorohanga District",1996-03-31,"Census, median household income",34200
+"227","Otorohanga District",2001-03-31,"Census, median household income",38350
+"228","Otorohanga District",2006-03-31,"Census, median household income",47500
+"229","Otorohanga District",2013-03-31,"Census, median household income",58700
+"230","Otorohanga District",2018-03-31,"Census, median household income",67900
+"231","Palmerston North City",1996-03-31,"Census, median household income",35000
+"232","Palmerston North City",2001-03-31,"Census, median household income",38400
+"233","Palmerston North City",2006-03-31,"Census, median household income",48066.6666666667
+"234","Palmerston North City",2013-03-31,"Census, median household income",58450
+"235","Palmerston North City",2018-03-31,"Census, median household income",67300
+"236","Porirua City",1996-03-31,"Census, median household income",43900
+"237","Porirua City",2001-03-31,"Census, median household income",49350
+"238","Porirua City",2006-03-31,"Census, median household income",62366.6666666667
+"239","Porirua City",2013-03-31,"Census, median household income",78950
+"240","Porirua City",2018-03-31,"Census, median household income",92200
+"241","Queenstown-Lakes District",1996-03-31,"Census, median household income",38400
+"242","Queenstown-Lakes District",2001-03-31,"Census, median household income",45300
+"243","Queenstown-Lakes District",2006-03-31,"Census, median household income",63733.3333333333
+"244","Queenstown-Lakes District",2013-03-31,"Census, median household income",73300
+"245","Queenstown-Lakes District",2018-03-31,"Census, median household income",103100
+"246","Rangitikei District",1996-03-31,"Census, median household income",28700
+"247","Rangitikei District",2001-03-31,"Census, median household income",31100
+"248","Rangitikei District",2006-03-31,"Census, median household income",40500
+"249","Rangitikei District",2013-03-31,"Census, median household income",48600
+"250","Rangitikei District",2018-03-31,"Census, median household income",55700
+"251","Rotorua District",1996-03-31,"Census, median household income",34700
+"252","Rotorua District",2001-03-31,"Census, median household income",38200
+"253","Rotorua District",2006-03-31,"Census, median household income",47600
+"254","Rotorua District",2013-03-31,"Census, median household income",55500
+"255","Rotorua District",2018-03-31,"Census, median household income",65300
+"256","Ruapehu District",1996-03-31,"Census, median household income",29200
+"257","Ruapehu District",2001-03-31,"Census, median household income",31450
+"258","Ruapehu District",2006-03-31,"Census, median household income",38966.6666666667
+"259","Ruapehu District",2013-03-31,"Census, median household income",44350
+"260","Ruapehu District",2018-03-31,"Census, median household income",53100
+"261","Selwyn District",1996-03-31,"Census, median household income",39100
+"262","Selwyn District",2001-03-31,"Census, median household income",47200
+"263","Selwyn District",2006-03-31,"Census, median household income",62500
+"264","Selwyn District",2013-03-31,"Census, median household income",85100
+"265","Selwyn District",2018-03-31,"Census, median household income",103100
+"266","South Taranaki District",1996-03-31,"Census, median household income",33300
+"267","South Taranaki District",2001-03-31,"Census, median household income",37700
+"268","South Taranaki District",2006-03-31,"Census, median household income",45400
+"269","South Taranaki District",2013-03-31,"Census, median household income",56350
+"270","South Taranaki District",2018-03-31,"Census, median household income",58400
+"271","South Waikato District",1996-03-31,"Census, median household income",34600
+"272","South Waikato District",2001-03-31,"Census, median household income",37800
+"273","South Waikato District",2006-03-31,"Census, median household income",41800
+"274","South Waikato District",2013-03-31,"Census, median household income",49200
+"275","South Waikato District",2018-03-31,"Census, median household income",57000
+"276","South Wairarapa District",1996-03-31,"Census, median household income",28300
+"277","South Wairarapa District",2001-03-31,"Census, median household income",34850
+"278","South Wairarapa District",2006-03-31,"Census, median household income",43766.6666666667
+"279","South Wairarapa District",2013-03-31,"Census, median household income",57750
+"280","South Wairarapa District",2018-03-31,"Census, median household income",70600
+"281","Southland District",1996-03-31,"Census, median household income",33200
+"282","Southland District",2001-03-31,"Census, median household income",41000
+"283","Southland District",2006-03-31,"Census, median household income",48633.3333333333
+"284","Southland District",2013-03-31,"Census, median household income",63800
+"285","Southland District",2018-03-31,"Census, median household income",70900
+"286","Southland Region",1996-03-31,"Census, median household income",32000
+"287","Southland Region",2001-03-31,"Census, median household income",35100
+"288","Southland Region",2006-03-31,"Census, median household income",44200
+"289","Southland Region",2013-03-31,"Census, median household income",57400
+"290","Southland Region",2018-03-31,"Census, median household income",64000
+"291","Stratford District",1996-03-31,"Census, median household income",29800
+"292","Stratford District",2001-03-31,"Census, median household income",34900
+"293","Stratford District",2006-03-31,"Census, median household income",42275
+"294","Stratford District",2013-03-31,"Census, median household income",53000
+"295","Stratford District",2018-03-31,"Census, median household income",59900
+"296","Taranaki Region",1996-03-31,"Census, median household income",31900
+"297","Taranaki Region",2001-03-31,"Census, median household income",34300
+"298","Taranaki Region",2006-03-31,"Census, median household income",44700
+"299","Taranaki Region",2013-03-31,"Census, median household income",58400
+"300","Taranaki Region",2018-03-31,"Census, median household income",63600
+"301","Tararua District",1996-03-31,"Census, median household income",30000
+"302","Tararua District",2001-03-31,"Census, median household income",33300
+"303","Tararua District",2006-03-31,"Census, median household income",41075
+"304","Tararua District",2013-03-31,"Census, median household income",47450
+"305","Tararua District",2018-03-31,"Census, median household income",53500
+"306","Tasman District",1996-03-31,"Census, median household income",29400
+"307","Tasman District",2001-03-31,"Census, median household income",32800
+"308","Tasman District",2006-03-31,"Census, median household income",43000
+"309","Tasman District",2013-03-31,"Census, median household income",53500
+"310","Tasman District",2018-03-31,"Census, median household income",64600
+"311","Tasman Region",1996-03-31,"Census, median household income",29400
+"312","Tasman Region",2001-03-31,"Census, median household income",32800
+"313","Tasman Region",2006-03-31,"Census, median household income",43000
+"314","Tasman Region",2013-03-31,"Census, median household income",53500
+"315","Tasman Region",2018-03-31,"Census, median household income",64600
+"316","Taupo District",1996-03-31,"Census, median household income",33100
+"317","Taupo District",2001-03-31,"Census, median household income",36900
+"318","Taupo District",2006-03-31,"Census, median household income",47900
+"319","Taupo District",2013-03-31,"Census, median household income",56600
+"320","Taupo District",2018-03-31,"Census, median household income",65900
+"321","Tauranga City",1996-03-31,"Census, median household income",29900
+"322","Tauranga City",2001-03-31,"Census, median household income",33350
+"323","Tauranga City",2006-03-31,"Census, median household income",45500
+"324","Tauranga City",2013-03-31,"Census, median household income",55800
+"325","Tauranga City",2018-03-31,"Census, median household income",69800
+"326","Thames-Coromandel District",1996-03-31,"Census, median household income",26400
+"327","Thames-Coromandel District",2001-03-31,"Census, median household income",27800
+"328","Thames-Coromandel District",2006-03-31,"Census, median household income",36100
+"329","Thames-Coromandel District",2013-03-31,"Census, median household income",41400
+"330","Thames-Coromandel District",2018-03-31,"Census, median household income",50700
+"331","Timaru District",1996-03-31,"Census, median household income",28700
+"332","Timaru District",2001-03-31,"Census, median household income",30300
+"333","Timaru District",2006-03-31,"Census, median household income",40500
+"334","Timaru District",2013-03-31,"Census, median household income",53650
+"335","Timaru District",2018-03-31,"Census, median household income",62200
+"336","Upper Hutt City",1996-03-31,"Census, median household income",39300
+"337","Upper Hutt City",2001-03-31,"Census, median household income",44300
+"338","Upper Hutt City",2006-03-31,"Census, median household income",54500
+"339","Upper Hutt City",2013-03-31,"Census, median household income",68400
+"340","Upper Hutt City",2018-03-31,"Census, median household income",82600
+"341","Waikato District",1996-03-31,"Census, median household income",34800
+"342","Waikato District",2001-03-31,"Census, median household income",41700
+"343","Waikato District",2006-03-31,"Census, median household income",56833.3333333333
+"344","Waikato District",2013-03-31,"Census, median household income",69400
+"345","Waikato District",2018-03-31,"Census, median household income",86600
+"346","Waikato Region",1996-03-31,"Census, median household income",34100
+"347","Waikato Region",2001-03-31,"Census, median household income",38450
+"348","Waikato Region",2006-03-31,"Census, median household income",49433.3333333333
+"349","Waikato Region",2013-03-31,"Census, median household income",59600
+"350","Waikato Region",2018-03-31,"Census, median household income",69600
+"351","Waimakariri District",1996-03-31,"Census, median household income",34700
+"352","Waimakariri District",2001-03-31,"Census, median household income",39700
+"353","Waimakariri District",2006-03-31,"Census, median household income",50900
+"354","Waimakariri District",2013-03-31,"Census, median household income",68800
+"355","Waimakariri District",2018-03-31,"Census, median household income",79000
+"356","Waimate District",1996-03-31,"Census, median household income",27100
+"357","Waimate District",2001-03-31,"Census, median household income",29100
+"358","Waimate District",2006-03-31,"Census, median household income",35333.3333333333
+"359","Waimate District",2013-03-31,"Census, median household income",48100
+"360","Waimate District",2018-03-31,"Census, median household income",53600
+"361","Waipa District",1996-03-31,"Census, median household income",36800
+"362","Waipa District",2001-03-31,"Census, median household income",42100
+"363","Waipa District",2006-03-31,"Census, median household income",54100
+"364","Waipa District",2013-03-31,"Census, median household income",67700
+"365","Waipa District",2018-03-31,"Census, median household income",80000
+"366","Wairoa District",1996-03-31,"Census, median household income",27600
+"367","Wairoa District",2001-03-31,"Census, median household income",29100
+"368","Wairoa District",2006-03-31,"Census, median household income",37200
+"369","Wairoa District",2013-03-31,"Census, median household income",42400
+"370","Wairoa District",2018-03-31,"Census, median household income",48500
+"371","Waitaki District",1996-03-31,"Census, median household income",27400
+"372","Waitaki District",2001-03-31,"Census, median household income",29100
+"373","Waitaki District",2006-03-31,"Census, median household income",35700
+"374","Waitaki District",2013-03-31,"Census, median household income",48100
+"375","Waitaki District",2018-03-31,"Census, median household income",55500
+"376","Waitomo District",1996-03-31,"Census, median household income",29000
+"377","Waitomo District",2001-03-31,"Census, median household income",35300
+"378","Waitomo District",2006-03-31,"Census, median household income",43450
+"379","Waitomo District",2013-03-31,"Census, median household income",51650
+"380","Waitomo District",2018-03-31,"Census, median household income",57000
+"381","Wellington City",1996-03-31,"Census, median household income",50900
+"382","Wellington City",2001-03-31,"Census, median household income",59400
+"383","Wellington City",2006-03-31,"Census, median household income",74200
+"384","Wellington City",2013-03-31,"Census, median household income",91100
+"385","Wellington City",2018-03-31,"Census, median household income",109300
+"386","Wellington Region",1996-03-31,"Census, median household income",41300
+"387","Wellington Region",2001-03-31,"Census, median household income",47600
+"388","Wellington Region",2006-03-31,"Census, median household income",59700
+"389","Wellington Region",2013-03-31,"Census, median household income",74300
+"390","Wellington Region",2018-03-31,"Census, median household income",88300
+"391","West Coast Region",1996-03-31,"Census, median household income",27600
+"392","West Coast Region",2001-03-31,"Census, median household income",28400
+"393","West Coast Region",2006-03-31,"Census, median household income",37800
+"394","West Coast Region",2013-03-31,"Census, median household income",55000
+"395","West Coast Region",2018-03-31,"Census, median household income",52200
+"396","Western Bay of Plenty District",1996-03-31,"Census, median household income",30400
+"397","Western Bay of Plenty District",2001-03-31,"Census, median household income",35450
+"398","Western Bay of Plenty District",2006-03-31,"Census, median household income",46733.3333333333
+"399","Western Bay of Plenty District",2013-03-31,"Census, median household income",55650
+"400","Western Bay of Plenty District",2018-03-31,"Census, median household income",71100
+"401","Westland District",1996-03-31,"Census, median household income",30800
+"402","Westland District",2001-03-31,"Census, median household income",31400
+"403","Westland District",2006-03-31,"Census, median household income",41300
+"404","Westland District",2013-03-31,"Census, median household income",55600
+"405","Westland District",2018-03-31,"Census, median household income",58500
+"406","Whakatane District",1996-03-31,"Census, median household income",32100
+"407","Whakatane District",2001-03-31,"Census, median household income",35300
+"408","Whakatane District",2006-03-31,"Census, median household income",46200
+"409","Whakatane District",2013-03-31,"Census, median household income",55300
+"410","Whakatane District",2018-03-31,"Census, median household income",62200
+"411","Whanganui District",1996-03-31,"Census, median household income",27000
+"412","Whanganui District",2001-03-31,"Census, median household income",28500
+"413","Whanganui District",2006-03-31,"Census, median household income",36100
+"414","Whanganui District",2013-03-31,"Census, median household income",43800
+"415","Whanganui District",2018-03-31,"Census, median household income",49200
+"416","Whangarei District",1996-03-31,"Census, median household income",29300
+"417","Whangarei District",2001-03-31,"Census, median household income",33000
+"418","Whangarei District",2006-03-31,"Census, median household income",43933.3333333333
+"419","Whangarei District",2013-03-31,"Census, median household income",52000
+"420","Whangarei District",2018-03-31,"Census, median household income",62100
